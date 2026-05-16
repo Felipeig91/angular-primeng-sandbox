@@ -1,4 +1,18 @@
-<router-outlet />
 
-<p-button label="Check" />
- <i class="pi pi-spin pi-spinner text-3xl"></i> <i class="pi pi-cog pi-spin text-3xl"></i>
+<!-- Barra de navegación minimalista superior -->
+<nav class="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-xs">
+  <div class="flex items-center gap-2">
+    <span class="text-xl font-black text-indigo-600 tracking-tight">SandboxHub</span>
+  </div>
+  <div class="flex gap-4">
+    <a routerLink="/directorio" routerLinkActive="text-indigo-600 font-semibold" class="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+      <i class="pi pi-th-large mr-1"></i> Directorio
+    </a>
+    <a routerLink="/dashboard" routerLinkActive="text-indigo-600 font-semibold" class="text-sm text-slate-600 hover:text-indigo-600 transition-colors">
+      <i class="pi pi-chart-bar mr-1"></i> Dashboard
+    </a>
+  </div>
+</nav>
+
+<!-- Aquí Angular renderizará dinámicamente el componente según la URL -->
+<router-outlet></router-outlet>

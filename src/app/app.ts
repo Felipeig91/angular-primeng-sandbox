@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router'; // 👈 Añade estos dos
 import { PrimeImportsModule } from './prime-imports';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, PrimeImportsModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, PrimeImportsModule], // 👈 Agrégalos aquí
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class AppComponent { // 👈 Asegúrate de que diga 'AppComponent'
+export class AppComponent {
   title = 'mi-nuevo-proyecto';
 }

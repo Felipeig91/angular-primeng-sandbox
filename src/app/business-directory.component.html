@@ -1,0 +1,87 @@
+<div class="min-h-screen bg-slate-50 p-6 md:p-12">
+
+  <!-- Encabezado con Tailwind v4 -->
+  <header class="max-w-7xl mx-auto mb-10 text-center md:text-left">
+    <h1 class="text-4xl font-extrabold text-slate-900 tracking-tight">Directorio Comercial Local</h1>
+    <p class="text-slate-600 mt-2 text-lg">Explora tiendas locales, solicita soporte técnico y aprovecha cupones exclusivos.</p>
+  </header>
+
+  <!-- Barra de Filtros utilizando p-selectButton de PrimeNG -->
+  <div class="max-w-7xl mx-auto mb-8 flex justify-center md:justify-start">
+    <div class="bg-white p-2 rounded-xl shadow-xs border border-slate-200">
+      <span class="text-xs font-semibold uppercase text-slate-400 block px-2 mb-1">Filtrar por Rubro</span>
+      <!-- Usamos ngModel directamente gracias a que PrimeImportsModule exporta FormsModule -->
+      <p-selectButton
+        [options]="categories"
+        [(ngModel)]="selectedCategory"
+        [allowEmpty]="false">
+      </p-selectButton>
+    </div>
+  </div>
+
+  <!-- Grid de Comercios -->
+  <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+    <!-- Iteración de Angular 21 (@for) -->
+    @for (item of filteredBusinesses; track item.id) {
+      <div class="bg-white rounded-2xl shadow-md border border-slate-100 overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+
+        <!-- Imagen de Portada -->
+        <div class="relative h-48 w-full bg-slate-200">
+          <img [src]="item.image" [alt]="item.name" class="w-full h-full object-cover"/>
+          <span class="absolute top-3 left-3 bg-slate-900/80 text-white text-xs font-bold px-3 py-1 rounded-full backdrop-blur-xs">
+            {{ item.category }}
+          </span>
+        </div>
+
+        <!-- Contenido de la Tarjeta -->
+        <div class="p-6 flex-1 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-start mb-2">
+              <h2 class="text-2xl font-bold text-slate-800">{{ item.name }}</h2>
+              <!-- Métricas rápidas usando p-badge -->
+              <div class="flex gap-2">
+                <span class="text-xs text-slate-500 flex items-center gap-1">
+                  👁️ {{ item.views }}
+                </span>
+              </div>
+            </div>
+            <p class="text-slate-600 text-sm line-clamp-3 mb-6">{{ item.description }}</p>
+          </div>
+
+          <!-- Sección de Cupones del Comercio -->
+          <div class="border-t border-slate-100 pt-4">
+            <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Cupones Disponibles</h4>
+
+            @for (coupon of item.coupons; track coupon.id) {
+              <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex justify-between items-center mb-2">
+                <div>
+                  <p class="text-sm font-bold text-amber-900">{{ coupon.title }}</p>
+                  <p class="text-xs text-amber-700">Quedan: <strong>{{ coupon.stock }}</strong> unidades</p>
+                </div>
+
+                <!-- Botón de PrimeNG estilizado internamente -->
+                <p-button
+                  label="Reclamar"
+                  icon="pi pi-ticket"
+                  severity="warn"
+                  size="small"
+                  [disabled]="coupon.stock === 0"
+                  (onClick)="onClaimCoupon(item.id, coupon); onViewBusiness(item.id)">
+                </p-button>
+              </div>
+            } @empty {
+              <p class="text-xs text-slate-400 italic">No hay cupones activos en este momento.</p>
+            }
+          </div>
+
+        </div>
+      </div>
+    } @empty {
+      <div class="col-span-full text-center py-12 bg-white rounded-2xl border border-dashed border-slate-300">
+        <p class="text-slate-500 font-medium">No se encontraron comercios en esta categoría.</p>
+      </div>
+    }
+
+  </main>
+</div>
