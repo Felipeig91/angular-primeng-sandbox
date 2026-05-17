@@ -81,4 +81,24 @@ export class BusinessService {
 
     return success;
   }
+
+  // Método para registrar un nuevo negocio
+  // Recibe datos del formulario y los persiste en el estado (simulando JSON)
+  registerNewBusiness(newBusinessData: Partial<Business>): Business {
+    const newBusiness: Business = {
+      id: Date.now().toString(), // ID único basado en timestamp
+      name: newBusinessData.name || 'Sin nombre',
+      category: newBusinessData.category || 'Educación',
+      description: newBusinessData.description || '',
+      image: newBusinessData.image || 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=500',
+      views: 0,
+      clicks: 0,
+      coupons: []
+    };
+
+    // Mutación inmutable del estado usando .update() y spread operator
+    this.businessesState.update(list => [...list, newBusiness]);
+
+    return newBusiness;
+  }
 }

@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MessageService } from 'primeng/api';
 import { BusinessService } from './business.service';
 import { Business, Coupon } from './business.model';
 import { PrimeImportsModule } from './prime-imports';
@@ -13,6 +14,7 @@ import { PrimeImportsModule } from './prime-imports';
 export class BusinessDirectoryComponent {
   // Inyectamos el servicio con el nuevo método inject() de Angular
   private businessService = inject(BusinessService);
+  private messageService = inject(MessageService);
 
   // Accedemos al Signal de negocios (Readonly)
   businesses = this.businessService.businesses;
@@ -20,6 +22,7 @@ export class BusinessDirectoryComponent {
   // Lista de categorías para el filtro
   categories = ['Todos', 'Gastronomía', 'Soporte Técnico', 'Moda', 'Salud', 'Educación'];
   selectedCategory = 'Todos';
+checked1: any;
 
   // Filtramos usando programación reactiva básica basada en el estado del componente
   get filteredBusinesses() {
@@ -38,10 +41,20 @@ export class BusinessDirectoryComponent {
     if (coupon.stock > 0) {
       const success = this.businessService.claimCoupon(businessId, coupon.id);
       if (success) {
-        alert(`¡Cupón ${coupon.code} reclamado con éxito! Guarda tu código.`);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Cupón Reclamado',
+          detail: `¡Cupón ${coupon.code} reclamado con éxito! Guarda tu código.`,
+          life: 4000
+        });
       }
     } else {
-      alert('Lo sentimos, este cupón ya no tiene stock disponible.');
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Cupón Agotado',
+        detail: 'Lo sentimos, este cupón ya no tiene stock disponible.',
+        life: 3000
+      });
     }
   }
 }
