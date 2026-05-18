@@ -1,14 +1,17 @@
 import { Component } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router'; // 👈 Añade estos dos
-import { PrimeImportsModule } from './prime-imports';
+import { RouterOutlet } from '@angular/router';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, PrimeImportsModule], // 👈 Agrégalos aquí
-  templateUrl: './app.html',
+  imports: [RouterOutlet, ToastModule],
+  template: `
+    <p-toast></p-toast>
+    <router-outlet></router-outlet>
+  `,
   styleUrl: './app.css'
 })
 export class AppComponent {
-  title = 'mi-nuevo-proyecto';
+  title = 'Avisolocal.cl v2.1.0';
 }
