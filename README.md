@@ -1,34 +1,34 @@
 # 🏪 Avisolocal.cl - v2.0.0
 
-**Directorio comercial moderno para negocios locales**
+**Diario Mural Digital para Puerto Montt**
 
-Plataforma empresarial para conectar clientes con negocios locales, cupones y servicios. Construida con arquitectura escalable, componentes reutilizables y estado reactivo.
+Plataforma comunitaria **100% gratuita sin fines de lucro** que centraliza servicios locales, conecta vecinos con negocios de confianza y brinda vitrina a emprendimientos locales. Construida con arquitectura escalable, componentes reutilizables y estado reactivo.
 
 ---
 
 ## 🎯 Características Principales
 
-✅ **Catálogo de Negocios** - Directorio completo con filtrado por categoría  
-✅ **Sistema de Cupones** - Ofertas y descuentos de comercios locales  
-✅ **Registro de Negocios** - Formulario multi-paso (4 pasos) con validación  
-✅ **Panel Administrativo** - Dashboard protegido con analíticas y gráficos  
-✅ **Autenticación** - Login seguro con localStorage y OAuth (stubs)  
-✅ **Diseño Responsivo** - Mobile-first con Tailwind CSS v4  
-✅ **State Management** - Angular Signals para estado reactivo  
-✅ **Componentes Modernos** - PrimeNG v21 con tema Aura  
+✅ **Directorio Centralizado** - Catálogo completo de negocios locales con filtrado por categoría  
+✅ **Vitrina para Pymes** - Registro gratuito sin límites ni publicidad invasiva  
+✅ **Red Comunitaria** - Conecta vecinos con servicios de confianza y comprobada calidad  
+✅ **Cupones y Ofertas** - Descuentos auténticos del comercio local para ahorrar juntos  
+✅ **Panel Administrativo** - Dashboard para gestionar negocios y ofertas  
+✅ **Autenticación Segura** - Login con localStorage y OAuth (stubs para expansión futura)  
+✅ **Diseño Responsivo** - Mobile-first pensado para la comunidad  
+✅ **Componentes Modernos** - PrimeNG v21 con tema Aura para interfaz profesional
 
 ---
 
 ## 🚀 Stack Tecnológico
 
-| Tecnología | Versión | Propósito |
-|-----------|---------|----------|
-| **Angular** | 21.2.11 | Framework principal |
-| **PrimeNG** | 21.1.7 | Componentes UI profesionales |
-| **Tailwind CSS** | 4.3.0 | Estilos utility-first |
-| **TypeScript** | 5.9 | Tipado estricto |
-| **RxJS** | 7.8 | Programación reactiva |
-| **Angular Signals** | 21+ | Estado reactivo moderno |
+| Tecnología          | Versión | Propósito                    |
+| ------------------- | ------- | ---------------------------- |
+| **Angular**         | 21.2.11 | Framework principal          |
+| **PrimeNG**         | 21.1.7  | Componentes UI profesionales |
+| **Tailwind CSS**    | 4.3.0   | Estilos utility-first        |
+| **TypeScript**      | 5.9     | Tipado estricto              |
+| **RxJS**            | 7.8     | Programación reactiva        |
+| **Angular Signals** | 21+     | Estado reactivo moderno      |
 
 ---
 
@@ -104,6 +104,7 @@ src/app/
 ### Patrón de Arquitectura
 
 **Feature-Based Modular Architecture**
+
 - Organización por dominio (public/admin)
 - Separación clara de responsabilidades
 - Escalable para agregar nuevas features
@@ -114,6 +115,7 @@ src/app/
 ## 🛣️ Rutas Disponibles
 
 ### Público (sin autenticación)
+
 ```
 /                  → Redirect a /inicio
 /inicio            → Hero section con CTAs
@@ -126,6 +128,7 @@ src/app/
 ```
 
 ### Admin (protegido con AdminGuard)
+
 ```
 /admin/login       → Panel de autenticación
 /admin/dashboard   → Dashboard con analíticas (protegido)
@@ -136,12 +139,14 @@ src/app/
 ## 🔐 Autenticación
 
 ### Credenciales Demo
+
 ```
 Email: admin@avisolocal.cl
 Contraseña: demo123
 ```
 
 ### Flujo de Autenticación
+
 1. Usuario accede a `/admin/login`
 2. Ingresa credenciales
 3. `AuthService` valida y guarda token en `localStorage`
@@ -149,6 +154,7 @@ Contraseña: demo123
 5. Si no autenticado → Redirige a `/admin/login`
 
 ### Características de Seguridad
+
 - ✅ Token persistente en `localStorage`
 - ✅ Validación en guards de rutas
 - ✅ Cierre de sesión limpia
@@ -159,13 +165,14 @@ Contraseña: demo123
 ## 📊 Modelos de Datos
 
 ### Business (Negocio)
+
 ```typescript
 interface Business {
   id: string;
-  name: string;                    // "Café Central"
-  category: BusinessCategory;      // "Gastronomía", "Moda", etc
+  name: string; // "Café Central"
+  category: BusinessCategory; // "Gastronomía", "Moda", etc
   description: string;
-  image?: string;                  // URL o base64
+  image?: string; // URL o base64
   responsible: {
     fullName: string;
     email: string;
@@ -177,12 +184,12 @@ interface Business {
     region: string;
   };
   schedule: {
-    openTime: string;              // "09:00"
-    closeTime: string;             // "18:00"
+    openTime: string; // "09:00"
+    closeTime: string; // "18:00"
     daysOpen: Set<DayOfWeek>;
   };
-  views: number;                   // Contador de visualizaciones
-  clicks: number;                  // Clics en cupones
+  views: number; // Contador de visualizaciones
+  clicks: number; // Clics en cupones
   coupons: Coupon[];
   createdAt: Date;
   updatedAt: Date;
@@ -190,6 +197,7 @@ interface Business {
 ```
 
 ### User (Usuario/Admin)
+
 ```typescript
 interface User {
   id: string;
@@ -207,11 +215,13 @@ interface User {
 ## 🎨 Diseño Visual
 
 ### Colores Corporativos
+
 - **Verde Bosque** `#059669` (emerald-600) - Primario, botones principales
 - **Ámbar** `#D97706` (amber-600) - CTAs, destacados
 - **Stone** (stone-50, stone-900) - Neutros, backgrounds, texto
 
 ### Componentes UI
+
 - Navbar sticky con logo + navegación + CTA
 - Cards responsivas con sombras suaves
 - Formularios validados con PrimeNG
@@ -224,6 +234,7 @@ interface User {
 ## ⚙️ Servicios Clave
 
 ### BusinessService
+
 ```typescript
 // Obtener lista de negocios (con Signals)
 businesses$: Signal<Business[]>
@@ -245,6 +256,7 @@ claimCoupon(businessId: string, couponId: string): Observable<void>
 ```
 
 ### AuthService
+
 ```typescript
 // Estado de usuario actual (Signal)
 currentUser$: Signal<User | null>
@@ -287,22 +299,26 @@ El panel admin incluye:
 ## 🎯 Formulario de Registro (4 Pasos)
 
 ### Paso 1: Responsable
+
 - Nombre completo (min 3 caracteres)
 - Teléfono (máscara +56 9 XXXX XXXX)
 - Email (formato válido)
 
 ### Paso 2: Información del Servicio
+
 - Nombre del negocio
 - Categoría (select: 6 opciones)
 - Descripción (min 20 caracteres)
 - Imagen (opcional, max 5MB)
 
 ### Paso 3: Ubicación
+
 - Dirección
 - Ciudad
 - Región (Los Lagos, Los Ríos, Aysén)
 
 ### Paso 4: Horario
+
 - Hora apertura/cierre (time inputs)
 - Días de operación (checkboxes)
 - Aceptar términos (required)
@@ -344,14 +360,16 @@ npm test           # Ejecutar tests
 - [ ] Integración OAuth real (Google/GitHub)
 - [ ] Backend REST API completo
 - [ ] Base de datos (MySQL/PostgreSQL)
-- [ ] Persistencia de negocios
-- [ ] Sistema de pagos
-- [ ] Panel de coupons avanzado
-- [ ] Búsqueda y filtrado avanzado
-- [ ] Perfil de usuario
-- [ ] Notificaciones por email
+- [ ] Persistencia de negocios y cupones
+- [ ] Panel de cupones avanzado
+- [ ] Búsqueda y filtrado inteligente
+- [ ] Perfiles de usuario y negocios
+- [ ] Sistema de valoraciones y comentarios
+- [ ] Notificaciones por email (sin costo)
+- [ ] Integración con redes locales
 - [ ] Tests unitarios e integración
 - [ ] Deployment a producción
+- [ ] Análisis de impacto comunitario
 
 ---
 
@@ -368,6 +386,7 @@ npm test           # Ejecutar tests
 ## 📄 Historial de Versiones
 
 ### v2.0.0 (Actual)
+
 - ✅ Arquitectura empresarial modular
 - ✅ Formulario multi-paso con Signals
 - ✅ Panel admin protegido
@@ -377,6 +396,7 @@ npm test           # Ejecutar tests
 - ✅ Colores corporativos implementados
 
 ### v1.0.0
+
 - Base inicial con PrimeNG y Tailwind
 
 ---
