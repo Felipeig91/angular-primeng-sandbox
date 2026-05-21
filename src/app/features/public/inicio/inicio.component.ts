@@ -60,7 +60,7 @@ import { ButtonModule } from 'primeng/button';
           </div>
 
           <!-- Imagen Hero -->
-          <div class="hidden md:block">
+          <div class="hidden md:block mt-5 ">
             <div class="bg-white rounded-2xl shadow-lg p-8 border border-stone-200">
               <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=500&h=500&fit=crop"
                    alt="Comercio Local" class="w-full h-full object-cover rounded-xl">

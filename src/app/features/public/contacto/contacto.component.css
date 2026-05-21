@@ -1,0 +1,42 @@
+/* Contacto Component Styles */
+
+:host {
+  display: block;
+}
+
+/* Map container responsive */
+iframe {
+  display: block;
+  max-width: 100%;
+}
+
+/* Smooth transitions */
+.transition {
+  transition: all 0.3s ease;
+}
+
+/* Form input focus styles */
+input:focus,
+textarea:focus {
+  border-color: #10b981 !important;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important;
+}
+
+/* Info cards hover effect */
+.text-center:hover {
+  transform: translateY(-4px);
+  transition: transform 0.3s ease;
+}
+
+/* Responsive map height */
+@media (max-width: 768px) {
+  iframe {
+    height: 300px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  iframe {
+    height: 250px !important;
+  }
+}

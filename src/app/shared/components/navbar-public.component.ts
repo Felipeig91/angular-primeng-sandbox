@@ -28,8 +28,8 @@ import { ButtonModule } from 'primeng/button';
           </div>
         </div>
 
-        <!-- Links Centrales -->
-        <div class="hidden md:flex gap-8 items-center">
+        <!-- Links Centrales (Desktop) -->
+        <div class="hidden lg:flex gap-8 items-center">
           <a routerLink="/" routerLinkActive="text-emerald-600 font-bold" [routerLinkActiveOptions]="{ exact: true }"
              class="text-sm text-stone-600 hover:text-emerald-600 transition-colors">
             Inicio
@@ -56,17 +56,59 @@ import { ButtonModule } from 'primeng/button';
           </a>
         </div>
 
-        <!-- CTA Button -->
+        <!-- CTA Button + Mobile Menu -->
         <div class="flex gap-3 items-center">
-          <a routerLink="/registrar">
+          <a routerLink="/registrar" class="hidden md:block">
             <button pButton type="button" label="Registrar Negocio"
                     class="!bg-amber-600 !border-amber-600 hover:!bg-amber-700"
                     icon="pi pi-plus"></button>
           </a>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobileMenuBtn" (click)="mobileMenuOpen = !mobileMenuOpen" pButton type="button"
+                  [icon]="mobileMenuOpen ? 'pi pi-times' : 'pi pi-bars'"></button>
         </div>
 
       </div>
+
+      <!-- Mobile Menu -->
+      <div *ngIf="mobileMenuOpen" class="mt-4 pb-4 border-t border-stone-200 pt-4 lg:hidden space-y-3">
+        <a routerLink="/" (click)="mobileMenuOpen = false" routerLinkActive="text-emerald-600 font-bold"
+           [routerLinkActiveOptions]="{ exact: true }"
+           class="block text-sm text-stone-600 hover:text-emerald-600 transition-colors py-2">
+          Inicio
+        </a>
+        <a routerLink="/directorio" (click)="mobileMenuOpen = false" routerLinkActive="text-emerald-600 font-bold"
+           class="block text-sm text-stone-600 hover:text-emerald-600 transition-colors py-2">
+          Directorio
+        </a>
+        <a routerLink="/quienes-somos" (click)="mobileMenuOpen = false" routerLinkActive="text-emerald-600 font-bold"
+           class="block text-sm text-stone-600 hover:text-emerald-600 transition-colors py-2">
+          Quiénes Somos
+        </a>
+        <a routerLink="/servicios" (click)="mobileMenuOpen = false" routerLinkActive="text-emerald-600 font-bold"
+           class="block text-sm text-stone-600 hover:text-emerald-600 transition-colors py-2">
+          Servicios
+        </a>
+        <a routerLink="/cupones" (click)="mobileMenuOpen = false" routerLinkActive="text-emerald-600 font-bold"
+           class="block text-sm text-stone-600 hover:text-emerald-600 transition-colors py-2">
+          Cupones
+        </a>
+        <a routerLink="/contacto" (click)="mobileMenuOpen = false" routerLinkActive="text-emerald-600 font-bold"
+           class="block text-sm text-stone-600 hover:text-emerald-600 transition-colors py-2">
+          Contacto
+        </a>
+        <hr class="my-2">
+        <a routerLink="/registrar" (click)="mobileMenuOpen = false" class="block">
+          <button pButton type="button" label="Registrar Negocio"
+                  class="!bg-amber-600 !border-amber-600 hover:!bg-amber-700 w-full"
+                  icon="pi pi-plus"></button>
+        </a>
+      </div>
     </nav>
-  `
+  `,
+  styleUrl: './navbar-public.component.css'
 })
-export class NavbarPublicComponent {}
+export class NavbarPublicComponent {
+  mobileMenuOpen = false;
+}

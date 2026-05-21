@@ -1,0 +1,70 @@
+/* Business Directory Component Styles */
+
+:host {
+  display: block;
+}
+
+/* Custom styles for selectButton component */
+:deep(.custom-select-button) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:deep(.custom-select-button .p-button) {
+  flex: 1;
+  min-width: 100px;
+  border: 2px solid #e7e5e4 !important;
+  background: #fff !important;
+  color: #78716b !important;
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 1rem !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+:deep(.custom-select-button .p-button:hover) {
+  border-color: #059669 !important;
+  background: #f0fdf4 !important;
+  color: #059669 !important;
+}
+
+:deep(.custom-select-button .p-button.p-highlight) {
+  background: #059669 !important;
+  border-color: #059669 !important;
+  color: white !important;
+  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1) !important;
+}
+
+/* Input focus styles */
+input:focus {
+  border-color: #10b981;
+}
+
+/* Search icon animation */
+.pi-search {
+  transition: transform 0.3s ease;
+}
+
+input:focus + .pi-search {
+  transform: scale(1.1);
+}
+
+/* Grid responsive adjustments */
+@media (max-width: 768px) {
+  :deep(.custom-select-button .p-button) {
+    flex: 0 1 calc(50% - 0.25rem);
+  }
+}
+
+@media (max-width: 480px) {
+  :deep(.custom-select-button .p-button) {
+    flex: 0 1 100%;
+  }
+}
+
+/* Smooth transitions */
+.transition {
+  transition: all 0.3s ease;
+}

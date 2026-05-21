@@ -26,11 +26,27 @@ import { ButtonModule } from 'primeng/button';
           <p class="text-stone-600 mt-3 text-lg">Explora negocios locales, solicita servicios y aprovecha cupones exclusivos.</p>
         </header>
 
-        <!-- Filtros -->
-        <div class="mb-10 flex justify-center md:justify-start">
-          <div class="bg-white p-4 rounded-xl shadow-sm border border-stone-200">
-            <label class="text-xs font-semibold uppercase text-stone-500 block mb-3">Filtrar por Categoría</label>
-            <p-selectButton [options]="categories" [(ngModel)]="selectedCategory" [allowEmpty]="false">
+        <!-- Filtros y Búsqueda -->
+        <div class="mb-12 bg-white rounded-2xl shadow-md border border-stone-200 p-8">
+          <!-- Buscador -->
+          <div class="mb-8">
+            <label class="text-xs font-bold uppercase text-stone-600 block mb-4 tracking-wider">Buscar Negocio</label>
+            <div class="relative">
+              <i class="pi pi-search absolute left-4 top-4 text-stone-400 text-lg"></i>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                placeholder="Escriba el nombre del negocio, servicio o ciudad..."
+                class="w-full pl-12 pr-4 py-3 border border-stone-300 rounded-lg text-stone-700 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition text-base"
+              />
+            </div>
+          </div>
+
+          <!-- Filtro por Categoría -->
+          <div>
+            <label class="text-xs font-bold uppercase text-stone-600 block mb-4 tracking-wider">Filtrar por Categoría</label>
+            <p-selectButton [options]="categories" [(ngModel)]="selectedCategory" [allowEmpty]="false"
+              styleClass="w-full custom-select-button">
             </p-selectButton>
           </div>
         </div>
@@ -99,7 +115,8 @@ import { ButtonModule } from 'primeng/button';
 
       </div>
     </section>
-  `
+  `,
+  styleUrl: './business-directory.component.css'
 })
 export class BusinessDirectoryComponent {
   private businessService = inject(BusinessService);
@@ -109,12 +126,27 @@ export class BusinessDirectoryComponent {
 
   categories = ['Todos', 'Gastronomía', 'Soporte Técnico', 'Moda', 'Salud', 'Educación', 'Otros'];
   selectedCategory = 'Todos';
+  searchTerm = '';
 
   get filteredBusinesses() {
-    if (this.selectedCategory === 'Todos') {
-      return this.businesses();
+    let filtered = this.businesses();
+
+    // Filtrar por categoría
+    if (this.selectedCategory !== 'Todos') {
+      filtered = filtered.filter(b => b.category === this.selectedCategory);
     }
-    return this.businesses().filter(b => b.category === this.selectedCategory);
+
+    // Filtrar por búsqueda
+    if (this.searchTerm.trim()) {
+      const term = this.searchTerm.toLowerCase();
+      filtered = filtered.filter(b =>
+        b.name.toLowerCase().includes(term) ||
+        b.description.toLowerCase().includes(term) ||
+        b.location.city.toLowerCase().includes(term)
+      );
+    }
+
+    return filtered;
   }
 
   onViewBusiness(businessId: string): void {
