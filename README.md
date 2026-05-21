@@ -419,7 +419,7 @@ MIT - Libre para uso educativo y comercial.
 
 ## 👤 Autor
 
-**Felipe Iglesias** - [@Felipeig91](https://github.com/Felipeig91)
+**Felipe Pinuer** - [@Felipeig91](https://github.com/Felipeig91)
 
 ---
 
