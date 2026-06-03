@@ -1,10 +1,15 @@
+/**
+ * Componente de Registro de Negocio Mejorado
+ * Con Stepper, gestión de cupones y integración API
+ */
+
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { PrimeImportsModule } from '../../../prime-imports';
-import { ApiService } from '../../../core/services/api.service';
+import { PrimeImportsModule } from '../../prime-imports';
+import { ApiService } from '../../core/services/api.service';
 
 interface CouponForm {
   title: string;
@@ -13,25 +18,10 @@ interface CouponForm {
   stock: number;
 }
 
-/**
- * COMPONENTE DE REGISTRO DE NEGOCIO MEJORADO
- * Features:
- * - Stepper con 3 pasos
- * - Gestión de cupones promocionales
- * - Integración con API backend
- * - Validación reactiva
- * - UX/UI profesional
- */
 @Component({
-  selector: 'app-business-register',
+  selector: 'app-business-register-improved',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    FormsModule,
-    PrimeImportsModule,
-    RouterLink
-  ],
+  imports: [CommonModule, PrimeImportsModule],
   template: `
     <div class="min-h-screen bg-linear-to-br from-slate-50 to-slate-100 p-4 md:p-8 flex items-center justify-center">
       <div class="w-full max-w-4xl">
@@ -46,7 +36,7 @@ interface CouponForm {
 
           <!-- Stepper -->
           <div class="p-8">
-            <p-stepper [activeIndex]="currentStep()" (activeIndexChange)="onStepChange($event)" [linear]="true">
+            <p-stepper [activeIndex]="currentStep()" (activeIndexChange)="onStepChange(\$event)" [linear]="true">
 
               <!-- PASO 1: Información Básica -->
               <p-stepperPanel header="Información Básica" headerIcon="pi pi-building" [stepperOptions]="{ index: 0 }">
@@ -191,7 +181,7 @@ interface CouponForm {
                         <div *ngFor="let coupon of addedCoupons(); let i = index" class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
                           <div>
                             <p class="font-semibold text-slate-700">{{ coupon.title }}</p>
-                            <p class="text-sm text-slate-600">Código: <span class="font-mono font-bold">{{ coupon.code }}</span> | Stock: {{ coupon.stock }}</p>
+                            <p class="text-sm text-slate-600">Código: {{ coupon.code }} | Stock: {{ coupon.stock }}</p>
                           </div>
                           <button pButton type="button" icon="pi pi-trash" severity="danger" (click)="removeCoupon(i)" [rounded]="true" [text]="true"></button>
                         </div>
@@ -298,13 +288,13 @@ interface CouponForm {
     </div>
   `
 })
-export class BusinessRegisterComponent {
+export class BusinessRegisterImprovedComponent {
   private apiService = inject(ApiService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private messageService = inject(MessageService);
 
-  // Signals
+  // Signals para estado reactivo
   currentStep = signal(0);
   isSubmitting = signal(false);
   wantsCoupons = false;
@@ -344,19 +334,31 @@ export class BusinessRegisterComponent {
     });
   }
 
+  /**
+   * Valida si un campo es inválido
+   */
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
   }
 
+  /**
+   * Navega a un paso específico
+   */
   goToStep(step: number) {
     this.currentStep.set(step);
   }
 
+  /**
+   * Maneja cambio de paso en el stepper
+   */
   onStepChange(event: any) {
     this.currentStep.set(event);
   }
 
+  /**
+   * Agrega un cupón a la lista
+   */
   addCoupon() {
     if (this.couponForm.valid) {
       const newCoupon = this.couponForm.value as CouponForm;
@@ -372,10 +374,16 @@ export class BusinessRegisterComponent {
     }
   }
 
+  /**
+   * Elimina un cupón de la lista
+   */
   removeCoupon(index: number) {
     this.addedCoupons.update(coupons => coupons.filter((_, i) => i !== index));
   }
 
+  /**
+   * Envío del formulario completo
+   */
   async onSubmit() {
     if (this.basicInfoForm.invalid || this.contactForm.invalid) {
       this.messageService.add({
@@ -390,12 +398,14 @@ export class BusinessRegisterComponent {
     this.isSubmitting.set(true);
 
     try {
+      // Combinar datos de todos los formularios
       const businessData = {
         ...this.basicInfoForm.value,
         ...this.contactForm.value,
         coupons: this.addedCoupons()
       };
 
+      // Enviar al backend
       const response = await this.apiService.createBusiness(businessData).toPromise();
 
       if (response?.success) {
@@ -406,6 +416,7 @@ export class BusinessRegisterComponent {
           life: 3000
         });
 
+        // Redirigir al directorio después de 2 segundos
         setTimeout(() => {
           this.router.navigate(['/directorio']);
         }, 2000);
@@ -421,6 +432,9 @@ export class BusinessRegisterComponent {
     }
   }
 
+  /**
+   * Cancelar y volver
+   */
   onCancel() {
     if (confirm('¿Deseas cancelar el registro? Se perderán los datos ingresados.')) {
       this.router.navigate(['/directorio']);

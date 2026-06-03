@@ -5,6 +5,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "server": "ts-node server/api.ts",
+    "server:dev": "ts-node --watch server/api.ts",
+    "dev": "concurrently \"npm run server\" \"npm start\"",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
@@ -40,7 +43,9 @@
     "@angular/compiler-cli": "^21.0.0",
     "@types/express": "^5.0.0",
     "@types/node": "^20.0.0",
+    "concurrently": "^8.2.2",
     "prettier": "^3.0.0",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

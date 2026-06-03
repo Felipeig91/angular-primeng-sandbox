@@ -1,189 +1,564 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ChartModule } from 'primeng/chart';
-import { TableModule } from 'primeng/table';
-import { BusinessService } from '../../../core/services/business.service';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { PrimeImportsModule } from '../../../prime-imports';
+import { ApiService } from '../../../core/services/api.service';
+import { ChartOptions } from 'chart.js';
 
 /**
- * ADMIN DASHBOARD
- * Analíticas y métricas de negocios registrados
+ * DASHBOARD ADMIN PRO
+ * Features:
+ * - Gráficos reales con Chart.js
+ * - Tabla de negocios con CRUD
+ * - Tabla de cupones separada con CRUD
+ * - Estadísticas en tiempo real
+ * - Filtros y búsqueda
  */
+
+interface DashboardStats {
+  totalBusinesses: number;
+  totalCoupons: number;
+  totalViews: number;
+  totalClicks: number;
+  byCategory: Record<string, number>;
+}
 
 @Component({
   selector: 'app-business-dashboard',
   standalone: true,
-  imports: [CommonModule, ChartModule, TableModule],
+  imports: [CommonModule, ReactiveFormsModule, PrimeImportsModule],
   template: `
-    <div class="space-y-8">
+    <div class="space-y-8 p-8 bg-slate-50 min-h-screen">
 
       <!-- Encabezado -->
-      <div>
-        <h1 class="text-3xl font-black text-stone-900">Panel de Analíticas</h1>
-        <p class="text-stone-600 mt-2">Monitoreo en tiempo real del rendimiento de negocios locales</p>
+      <div class="mb-8">
+        <h1 class="text-4xl font-black text-slate-900">📊 Dashboard Admin</h1>
+        <p class="text-slate-600 mt-2 text-lg">Gestión completa de negocios y cupones</p>
       </div>
 
-      <!-- Grid de Métricas -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- Tabs -->
+      <p-tabs>
 
-        <!-- Visualizaciones -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex justify-between items-center">
-          <div>
-            <span class="text-xs font-semibold text-stone-500 uppercase">Total Visualizaciones</span>
-            <h3 class="text-3xl font-black text-stone-900 mt-2">{{ totalViews() }}</h3>
+        <!-- TAB 1: OVERVIEW Y ESTADÍSTICAS -->
+        <p-tabPanel header="📈 Overview" leftIcon="pi pi-chart-bar">
+          <div class="space-y-8">
+
+            <!-- Métricas KPI -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+              <!-- Total Negocios -->
+              <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-indigo-600">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-slate-600">Total Negocios</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats()?.totalBusinesses || 0 }}</h3>
+                  </div>
+                  <div class="text-4xl">🏢</div>
+                </div>
+              </div>
+
+              <!-- Total Cupones -->
+              <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-amber-600">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-slate-600">Total Cupones</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats()?.totalCoupons || 0 }}</h3>
+                  </div>
+                  <div class="text-4xl">🎟️</div>
+                </div>
+              </div>
+
+              <!-- Total Vistas -->
+              <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-600">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-slate-600">Total Vistas</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats()?.totalViews || 0 }}</h3>
+                  </div>
+                  <div class="text-4xl">👁️</div>
+                </div>
+              </div>
+
+              <!-- Total Clicks -->
+              <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-600">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm font-medium text-slate-600">Cupones Reclamados</p>
+                    <h3 class="text-3xl font-bold text-slate-900 mt-2">{{ stats()?.totalClicks || 0 }}</h3>
+                  </div>
+                  <div class="text-4xl">✅</div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Gráficos -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              <!-- Gráfico de Barras - Negocios por Categoría -->
+              <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4">Negocios por Categoría</h2>
+                <p-chart type="bar" [data]="barChartData" [options]="chartOptions" style="height: 300px"></p-chart>
+              </div>
+
+              <!-- Gráfico Pie - Distribución -->
+              <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-lg font-bold text-slate-900 mb-4">Distribución por Categoría</h2>
+                <p-chart type="pie" [data]="pieChartData" [options]="chartOptions" style="height: 300px"></p-chart>
+              </div>
+
+            </div>
+
           </div>
-          <div class="w-12 h-12 bg-indigo-50 rounded-lg flex items-center justify-center text-2xl">
-            👁️
+        </p-tabPanel>
+
+        <!-- TAB 2: GESTIÓN DE NEGOCIOS -->
+        <p-tabPanel header="🏢 Negocios" leftIcon="pi pi-building">
+          <div class="space-y-6">
+
+            <!-- Botón Agregar -->
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-xl font-bold text-slate-900">Listado de Negocios</h2>
+              <button
+                pButton
+                type="button"
+                label="+ Agregar Negocio"
+                icon="pi pi-plus"
+                (click)="showBusinessDialog()"
+                class="bg-indigo-600"
+              ></button>
+            </div>
+
+            <!-- Tabla de Negocios -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <p-table
+                [value]="businesses()"
+                [paginator]="true"
+                [rows]="10"
+                [globalFilterFields]="['name', 'category', 'description']"
+                responsiveLayout="scroll"
+                styleClass="p-datatable-striped"
+              >
+                <ng-template pTemplate="header">
+                  <tr class="bg-slate-100">
+                    <th class="!p-4 text-left">Negocio</th>
+                    <th class="!p-4 text-left">Categoría</th>
+                    <th class="!p-4 text-center">Vistas</th>
+                    <th class="!p-4 text-center">Cupones</th>
+                    <th class="!p-4 text-center">Acciones</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-business>
+                  <tr class="border-b border-slate-200 hover:bg-slate-50">
+                    <td class="!p-4 font-semibold text-slate-900">{{ business.name }}</td>
+                    <td class="!p-4">
+                      <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
+                        {{ business.category }}
+                      </span>
+                    </td>
+                    <td class="!p-4 text-center text-slate-600">{{ business.views }}</td>
+                    <td class="!p-4 text-center">
+                      <span class="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full font-medium">
+                        {{ business.coupons?.length || 0 }}
+                      </span>
+                    </td>
+                    <td class="!p-4 text-center space-x-2">
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-eye"
+                        class="p-button-rounded p-button-sm p-button-info"
+                        (click)="viewBusiness(business)"
+                        pTooltip="Ver"
+                        tooltipPosition="top"
+                      ></button>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-sm p-button-warning"
+                        (click)="editBusiness(business)"
+                        pTooltip="Editar"
+                        tooltipPosition="top"
+                      ></button>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-rounded p-button-sm p-button-danger"
+                        (click)="deleteBusiness(business.id)"
+                        pTooltip="Eliminar"
+                        tooltipPosition="top"
+                      ></button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="5" class="text-center py-8 text-slate-500">
+                      No hay negocios registrados
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
           </div>
-        </div>
+        </p-tabPanel>
 
-        <!-- Cupones Reclamados -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex justify-between items-center">
-          <div>
-            <span class="text-xs font-semibold text-stone-500 uppercase">Cupones Reclamados</span>
-            <h3 class="text-3xl font-black text-stone-900 mt-2">{{ totalClicks() }}</h3>
+        <!-- TAB 3: GESTIÓN DE CUPONES -->
+        <p-tabPanel header="🎟️ Cupones" leftIcon="pi pi-tag">
+          <div class="space-y-6">
+
+            <!-- Filtro por Negocio -->
+            <div class="flex gap-4 mb-6">
+              <p-select
+                [options]="businessOptions()"
+                [(ngModel)]="selectedBusinessForCoupons"
+                optionLabel="name"
+                optionValue="id"
+                placeholder="Filtrar por negocio"
+                class="w-full md:w-64"
+              ></p-select>
+            </div>
+
+            <!-- Tabla de Cupones -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+              <p-table
+                [value]="filteredCoupons()"
+                [paginator]="true"
+                [rows]="10"
+                responsiveLayout="scroll"
+                styleClass="p-datatable-striped"
+              >
+                <ng-template pTemplate="header">
+                  <tr class="bg-slate-100">
+                    <th class="!p-4 text-left">Negocio</th>
+                    <th class="!p-4 text-left">Cupón</th>
+                    <th class="!p-4 text-left">Código</th>
+                    <th class="!p-4 text-center">Stock</th>
+                    <th class="!p-4 text-center">Acciones</th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-coupon let-business="rowData">
+                  <tr class="border-b border-slate-200 hover:bg-slate-50">
+                    <td class="!p-4 font-semibold text-slate-900">{{ coupon.businessName }}</td>
+                    <td class="!p-4">{{ coupon.title }}</td>
+                    <td class="!p-4 font-mono font-bold text-indigo-600">{{ coupon.code }}</td>
+                    <td class="!p-4 text-center">
+                      <span class="inline-block px-3 py-1" [ngClass]="{
+                        'bg-green-100 text-green-700': coupon.stock > 5,
+                        'bg-yellow-100 text-yellow-700': coupon.stock <= 5 && coupon.stock > 0,
+                        'bg-red-100 text-red-700': coupon.stock === 0
+                      }">
+                        {{ coupon.stock }}
+                      </span>
+                    </td>
+                    <td class="!p-4 text-center space-x-2">
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-pencil"
+                        class="p-button-rounded p-button-sm p-button-warning"
+                        (click)="editCoupon(coupon)"
+                        pTooltip="Editar"
+                        tooltipPosition="top"
+                      ></button>
+                      <button
+                        pButton
+                        type="button"
+                        icon="pi pi-trash"
+                        class="p-button-rounded p-button-sm p-button-danger"
+                        (click)="deleteCoupon(coupon)"
+                        pTooltip="Eliminar"
+                        tooltipPosition="top"
+                      ></button>
+                    </td>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="emptymessage">
+                  <tr>
+                    <td colspan="5" class="text-center py-8 text-slate-500">
+                      No hay cupones registrados
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
           </div>
-          <div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-2xl">
-            🎟️
-          </div>
-        </div>
+        </p-tabPanel>
 
-        <!-- Servicios Activos -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200 flex justify-between items-center">
-          <div>
-            <span class="text-xs font-semibold text-stone-500 uppercase">Servicios Activos</span>
-            <h3 class="text-3xl font-black text-stone-900 mt-2">{{ activeServices() }}</h3>
-          </div>
-          <div class="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center text-2xl">
-            🏢
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Gráficos -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        <!-- Gráfico de Barras -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
-          <h2 class="text-lg font-bold text-stone-900 mb-4">Cupones por Comercio</h2>
-          <p-chart type="bar" [data]="barChartData" [options]="chartOptions" style="height: 300px"></p-chart>
-        </div>
-
-        <!-- Gráfico Pie -->
-        <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
-          <h2 class="text-lg font-bold text-stone-900 mb-4">Comercios por Categoría</h2>
-          <p-chart type="pie" [data]="pieChartData" [options]="chartOptions" style="height: 300px"></p-chart>
-        </div>
-
-      </div>
-
-      <!-- Tabla de Rendimiento -->
-      <div class="bg-white p-6 rounded-xl shadow-sm border border-stone-200">
-        <h2 class="text-lg font-bold text-stone-900 mb-4">Rendimiento por Comercio</h2>
-
-        <p-table [value]="businesses()" responsiveLayout="scroll"
-                 styleClass="p-datatable-striped" [paginator]="true" [rows]="10">
-          <ng-template pTemplate="header">
-            <tr class="bg-stone-50">
-              <th class="text-stone-700 font-semibold text-left">Negocio</th>
-              <th class="text-stone-700 font-semibold text-left">Categoría</th>
-              <th class="text-stone-700 font-semibold text-center">Visitas</th>
-              <th class="text-stone-700 font-semibold text-center">Cupones</th>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-business>
-            <tr class="border-b border-stone-200">
-              <td class="text-stone-900 font-semibold">{{ business.name }}</td>
-              <td>
-                <span class="text-xs bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-medium">
-                  {{ business.category }}
-                </span>
-              </td>
-              <td class="text-center text-indigo-600 font-bold">{{ business.views }}</td>
-              <td class="text-center text-amber-600 font-bold">{{ business.clicks }}</td>
-            </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-            <tr>
-              <td colspan="4" class="text-center text-stone-500 py-8">Sin datos disponibles</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </div>
+      </p-tabs>
 
     </div>
+
+    <!-- Dialog para ver/editar negocio -->
+    <p-dialog
+      [(visible)]="showBusinessDialogFlag"
+      [header]="isEditingBusiness ? 'Editar Negocio' : 'Ver Negocio'"
+      [modal]="true"
+      [style]="{ width: '90%', maxWidth: '600px' }"
+    >
+      <div class="space-y-4" *ngIf="selectedBusiness()">
+        <div>
+          <label class="text-sm font-semibold text-slate-700">Nombre</label>
+          <p class="text-slate-900 font-semibold">{{ selectedBusiness()?.name }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-slate-700">Categoría</label>
+          <p class="text-slate-900">{{ selectedBusiness()?.category }}</p>
+        </div>
+        <div>
+          <label class="text-sm font-semibold text-slate-700">Descripción</label>
+          <p class="text-slate-900">{{ selectedBusiness()?.description }}</p>
+        </div>
+        <div class="grid grid-cols-3 gap-4 pt-4 border-t border-slate-200">
+          <div class="text-center">
+            <p class="text-2xl font-bold text-slate-900">{{ selectedBusiness()?.views }}</p>
+            <p class="text-sm text-slate-600">Vistas</p>
+          </div>
+          <div class="text-center">
+            <p class="text-2xl font-bold text-slate-900">{{ selectedBusiness()?.clicks }}</p>
+            <p class="text-sm text-slate-600">Clicks</p>
+          </div>
+          <div class="text-center">
+            <p class="text-2xl font-bold text-slate-900">{{ selectedBusiness()?.coupons?.length || 0 }}</p>
+            <p class="text-sm text-slate-600">Cupones</p>
+          </div>
+        </div>
+      </div>
+    </p-dialog>
+
   `
 })
-export class BusinessDashboardComponent {
-  private businessService = inject(BusinessService);
-  businesses = this.businessService.businesses;
+export class BusinessDashboardComponent implements OnInit {
+  private apiService = inject(ApiService);
+  private messageService = inject(MessageService);
 
-  chartOptions = {
-    maintainAspectRatio: false,
+  // Signals
+  businesses = signal<any[]>([]);
+  stats = signal<DashboardStats | null>(null);
+  selectedBusiness = signal<any | null>(null);
+  showBusinessDialogFlag = false;
+  isEditingBusiness = false;
+  wantsCoupons = false;
+  selectedBusinessForCoupons: string | null = null;
+
+  // Chart data
+  barChartData: any = {};
+  pieChartData: any = {};
+  chartOptions: ChartOptions = {
     responsive: true,
+    maintainAspectRatio: true,
     plugins: {
       legend: {
         display: true,
-        position: 'bottom' as const
+        labels: { usePointStyle: true }
       }
     }
   };
 
-  barChartData = computed(() => {
-    const businessesList = this.businesses();
-    return {
-      labels: businessesList.map(b => b.name),
-      datasets: [
-        {
-          label: 'Cupones Reclamados',
-          data: businessesList.map(b => b.clicks),
-          backgroundColor: 'rgba(217, 119, 6, 0.6)',
-          borderColor: 'rgba(217, 119, 6, 1)',
-          borderWidth: 1,
-          borderRadius: 6
+  constructor() {}
+
+  ngOnInit() {
+    this.loadData();
+  }
+
+  /**
+   * Carga todos los datos
+   */
+  loadData() {
+    this.apiService.getAllBusinesses().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.businesses.set(response.data);
+          this.processStats(response.data);
+          this.generateCharts(response.data);
         }
-      ]
-    };
-  });
-
-  pieChartData = computed(() => {
-    const businessesList = this.businesses();
-    const categoryCount: { [key: string]: number } = {};
-
-    businessesList.forEach(b => {
-      categoryCount[b.category] = (categoryCount[b.category] || 0) + 1;
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los negocios',
+          life: 3000
+        });
+      }
     });
 
-    const colors = [
-      'rgba(5, 150, 105, 0.6)',    // Emerald
-      'rgba(217, 119, 6, 0.6)',    // Amber
-      'rgba(139, 92, 246, 0.6)',   // Purple
-      'rgba(239, 68, 68, 0.6)',    // Red
-      'rgba(59, 130, 246, 0.6)'    // Blue
-    ];
-
-    return {
-      labels: Object.keys(categoryCount),
-      datasets: [
-        {
-          data: Object.values(categoryCount),
-          backgroundColor: colors.slice(0, Object.keys(categoryCount).length),
-          borderColor: colors.slice(0, Object.keys(categoryCount).length),
-          borderWidth: 2
+    this.apiService.getStats().subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.stats.set(response.data);
         }
-      ]
+      }
+    });
+  }
+
+  /**
+   * Procesa estadísticas
+   */
+  private processStats(businesses: any[]) {
+    const stats: DashboardStats = {
+      totalBusinesses: businesses.length,
+      totalCoupons: businesses.reduce((acc, b) => acc + (b.coupons?.length || 0), 0),
+      totalViews: businesses.reduce((acc, b) => acc + b.views, 0),
+      totalClicks: businesses.reduce((acc, b) => acc + b.clicks, 0),
+      byCategory: {}
     };
-  });
 
-  totalViews(): number {
-    return this.businesses().reduce((acc, b) => acc + b.views, 0);
+    businesses.forEach(b => {
+      stats.byCategory[b.category] = (stats.byCategory[b.category] || 0) + 1;
+    });
+
+    this.stats.set(stats);
   }
 
-  totalClicks(): number {
-    return this.businesses().reduce((acc, b) => acc + b.clicks, 0);
+  /**
+   * Genera gráficos
+   */
+  private generateCharts(businesses: any[]) {
+    const categories = [...new Set(businesses.map(b => b.category))];
+    const categoryCounts = categories.map(cat =>
+      businesses.filter(b => b.category === cat).length
+    );
+
+    // Gráfico de barras
+    this.barChartData = {
+      labels: categories,
+      datasets: [{
+        label: 'Negocios por Categoría',
+        data: categoryCounts,
+        backgroundColor: [
+          '#4F46E5', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6'
+        ]
+      }]
+    };
+
+    // Gráfico pie
+    this.pieChartData = {
+      labels: categories,
+      datasets: [{
+        data: categoryCounts,
+        backgroundColor: [
+          '#4F46E5', '#F59E0B', '#10B981', '#EF4444', '#8B5CF6'
+        ]
+      }]
+    };
   }
 
-  activeServices(): number {
-    return this.businesses().length;
+  /**
+   * Opciones para selector de negocios
+   */
+  businessOptions() {
+    return this.businesses();
+  }
+
+  /**
+   * Cupones filtrados por negocio
+   */
+  filteredCoupons() {
+    return this.businesses()
+      .flatMap(b => (b.coupons || []).map(c => ({ ...c, businessName: b.name, businessId: b.id })))
+      .filter(c => !this.selectedBusinessForCoupons || c.businessId === this.selectedBusinessForCoupons);
+  }
+
+  /**
+   * Muestra diálogo para agregar negocio
+   */
+  showBusinessDialog() {
+    this.isEditingBusiness = false;
+    this.selectedBusiness.set(null);
+    this.showBusinessDialogFlag = true;
+  }
+
+  /**
+   * Ver negocio
+   */
+  viewBusiness(business: any) {
+    this.selectedBusiness.set(business);
+    this.isEditingBusiness = false;
+    this.showBusinessDialogFlag = true;
+  }
+
+  /**
+   * Editar negocio
+   */
+  editBusiness(business: any) {
+    this.selectedBusiness.set(business);
+    this.isEditingBusiness = true;
+    this.showBusinessDialogFlag = true;
+  }
+
+  /**
+   * Eliminar negocio
+   */
+  deleteBusiness(id: string) {
+    if (confirm('¿Estás seguro de que deseas eliminar este negocio?')) {
+      this.apiService.deleteBusiness(id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Negocio eliminado correctamente',
+              life: 3000
+            });
+            this.loadData();
+          }
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar el negocio',
+            life: 3000
+          });
+        }
+      });
+    }
+  }
+
+  /**
+   * Editar cupón
+   */
+  editCoupon(coupon: any) {
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Función Próxima',
+      detail: 'Editar cupones - Próximamente disponible',
+      life: 3000
+    });
+  }
+
+  /**
+   * Eliminar cupón
+   */
+  deleteCoupon(coupon: any) {
+    if (confirm('¿Estás seguro de que deseas eliminar este cupón?')) {
+      this.apiService.deleteCoupon(coupon.businessId, coupon.id).subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Éxito',
+              detail: 'Cupón eliminado correctamente',
+              life: 3000
+            });
+            this.loadData();
+          }
+        },
+        error: (error) => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'No se pudo eliminar el cupón',
+            life: 3000
+          });
+        }
+      });
+    }
   }
 }
