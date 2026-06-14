@@ -39,6 +39,7 @@ export interface CreateBusinessDTO {
   name: string;
   category: string;
   description: string;
+  image?: string | null;
   contact?: string;
   phone?: string;
   address?: string;

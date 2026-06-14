@@ -445,10 +445,16 @@ export class BusinessRegisterComponent {
 
     try {
       const businessData = {
-        ...this.basicInfoForm.value,
-        ...this.contactForm.value,
+        name: this.basicInfoForm.get('name')?.value,
+        category: this.basicInfoForm.get('category')?.value,
+        description: this.basicInfoForm.get('description')?.value,
+        contact: this.contactForm.get('contact')?.value,
+        phone: this.contactForm.get('phone')?.value,
+        address: this.contactForm.get('address')?.value,
         coupons: this.addedCoupons()
       };
+
+      console.log('📤 Enviando datos:', businessData);
 
       let response;
 
@@ -464,11 +470,15 @@ export class BusinessRegisterComponent {
         formData.append('address', businessData.address || '');
         formData.append('coupons', JSON.stringify(businessData.coupons));
 
+        console.log('📸 Con imagen');
         response = await this.apiService.createBusinessWithImage(formData).toPromise();
       } else {
         // Sin imagen, usar JSON directo
+        console.log('📝 Sin imagen');
         response = await this.apiService.createBusiness(businessData).toPromise();
       }
+
+      console.log('✅ Respuesta:', response);
 
       if (response?.success) {
         this.messageService.add({
@@ -481,8 +491,17 @@ export class BusinessRegisterComponent {
         setTimeout(() => {
           this.router.navigate(['/directorio']);
         }, 2000);
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error de Registro',
+          detail: response?.message || 'No se pudo registrar el negocio',
+          life: 4000
+        });
+        this.isSubmitting.set(false);
       }
     } catch (error: any) {
+      console.error('❌ Error:', error);
       this.messageService.add({
         severity: 'error',
         summary: 'Error de Registro',

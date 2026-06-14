@@ -45,9 +45,14 @@ export interface Business {
   category: BusinessCategory;
   description: string;
   image?: string; // File URL después de upload
-  responsible: BusinessResponsible;
-  location: BusinessLocation;
-  schedule: BusinessSchedule;
+  // Campos anidados (para compatibilidad con formulario)
+  responsible?: BusinessResponsible;
+  location?: BusinessLocation;
+  schedule?: BusinessSchedule;
+  // Campos separados (devueltos por backend)
+  address?: string;
+  contact?: string;
+  phone?: string;
   views: number;
   clicks: number;
   coupons: Coupon[];

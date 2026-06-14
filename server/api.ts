@@ -26,7 +26,7 @@ import { corsMiddleware } from './middleware/cors';
 import { errorHandler } from './middleware/error-handler';
 
 const app: Express = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env['PORT'] || 3001;
 const API_PORT = 3001; // Puerto separado para la API
 
 // Middleware

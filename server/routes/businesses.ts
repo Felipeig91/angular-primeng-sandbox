@@ -41,7 +41,7 @@ router.get('/', asyncHandler(async (req: Request, res: Response) => {
  * Obtiene un negocio específico por ID
  */
 router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const business = await getBusinessById(req.params.id);
+  const business = await getBusinessById(req.params.id as string);
 
   if (!business) {
     return res.status(404).json({
@@ -51,7 +51,7 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   }
 
   // Incrementar vistas
-  await incrementViews(req.params.id);
+  await incrementViews(req.params.id as string);
 
   const response: ApiResponse<any> = {
     success: true,
@@ -150,7 +150,7 @@ router.post('/upload', upload.single('image'), asyncHandler(async (req: Request,
  * Actualiza un negocio existente (JSON sin imagen)
  */
 router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const existing = await getBusinessById(req.params.id);
+  const existing = await getBusinessById(req.params.id as string);
 
   if (!existing) {
     return res.status(404).json({
@@ -159,7 +159,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  const updated = await updateBusiness(req.params.id, req.body);
+  const updated = await updateBusiness(req.params.id as string, req.body);
 
   const response: ApiResponse<any> = {
     success: true,
@@ -174,7 +174,7 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
  * Actualiza un negocio con nueva imagen (FormData)
  */
 router.put('/:id/upload', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
-  const existing = await getBusinessById(req.params.id);
+  const existing = await getBusinessById(req.params.id as string);
 
   if (!existing) {
     return res.status(404).json({
@@ -190,7 +190,7 @@ router.put('/:id/upload', upload.single('image'), asyncHandler(async (req: Reque
     updateData.image = `/uploads/${req.file.filename}`;
   }
 
-  const updated = await updateBusiness(req.params.id, updateData);
+  const updated = await updateBusiness(req.params.id as string, updateData);
 
   const response: ApiResponse<any> = {
     success: true,
@@ -205,7 +205,7 @@ router.put('/:id/upload', upload.single('image'), asyncHandler(async (req: Reque
  * Elimina un negocio
  */
 router.delete('/:id', asyncHandler(async (req: Request, res: Response) => {
-  const deleted = await deleteBusiness(req.params.id);
+  const deleted = await deleteBusiness(req.params.id as string);
 
   if (!deleted) {
     return res.status(404).json({

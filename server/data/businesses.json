@@ -1,0 +1,152 @@
+[
+  {
+    "id": "1",
+    "name": "Alpha Tech Support",
+    "category": "Soporte Técnico",
+    "description": "Mantenimiento de computadores, servidores y consultoría informática local.",
+    "image": "/uploads/business-1.jpg",
+    "contact": "info@alphatech.local",
+    "phone": "+1 234 567 8900",
+    "address": "Calle Principal 123",
+    "views": 142,
+    "clicks": 38,
+    "coupons": [
+      {
+        "id": "c1",
+        "title": "20% en tu primer mantenimiento",
+        "discount": "20%",
+        "code": "TECH20",
+        "stock": 15,
+        "createdAt": "2026-06-14T20:19:51.447Z"
+      }
+    ],
+    "createdAt": "2026-06-14T20:19:51.448Z",
+    "updatedAt": "2026-06-14T20:19:51.448Z"
+  },
+  {
+    "id": "1781468433220",
+    "name": "lillo",
+    "category": "Moda",
+    "description": "corte lillo",
+    "image": "/uploads/default-business.jpg",
+    "contact": "FIRP1991@ICLOUD.COM",
+    "phone": "+56988964771",
+    "address": "ROBERTO MATTA 163",
+    "views": 0,
+    "clicks": 0,
+    "coupons": [
+      {
+        "title": "lillo",
+        "discount": "20%",
+        "code": "lillo2026",
+        "stock": 1,
+        "id": "1781468433220",
+        "createdAt": "2026-06-14T20:20:33.220Z"
+      }
+    ],
+    "createdAt": "2026-06-14T20:20:33.220Z",
+    "updatedAt": "2026-06-14T20:20:33.220Z"
+  },
+  {
+    "id": "1781468524844",
+    "name": "leme",
+    "category": "Salud",
+    "description": "debele fembe",
+    "image": "/uploads/default-business.jpg",
+    "contact": "FIRP1991@ICLOUD.COM",
+    "phone": "+56988964771",
+    "address": "ROBERTO MATTA 163",
+    "views": 0,
+    "clicks": 0,
+    "coupons": [
+      {
+        "title": "20% en tu primera compra",
+        "discount": "20%",
+        "code": "cera23",
+        "stock": 3,
+        "id": "1781468524844",
+        "createdAt": "2026-06-14T20:22:04.844Z"
+      }
+    ],
+    "createdAt": "2026-06-14T20:22:04.844Z",
+    "updatedAt": "2026-06-14T20:22:04.844Z"
+  },
+  {
+    "id": "1781468625248",
+    "name": "lillo",
+    "category": "Moda",
+    "description": "solo solo solo solo",
+    "image": "/uploads/default-business.jpg",
+    "contact": "FIRP1991@ICLOUD.COM",
+    "phone": "+56988964771",
+    "address": "ROBERTO MATTA 163",
+    "views": 0,
+    "clicks": 0,
+    "coupons": [
+      {
+        "title": "20% solo una vez",
+        "discount": "20%",
+        "code": "lillo2026",
+        "stock": 5,
+        "id": "1781468625248",
+        "createdAt": "2026-06-14T20:23:45.248Z"
+      }
+    ],
+    "createdAt": "2026-06-14T20:23:45.248Z",
+    "updatedAt": "2026-06-14T20:23:45.248Z"
+  },
+  {
+    "id": "1781469077805",
+    "name": "lillo",
+    "category": "Salud",
+    "description": "foca foca foca",
+    "image": "/uploads/default-business.jpg",
+    "contact": "FIRP1991@ICLOUD.COM",
+    "phone": "+56988964771",
+    "address": "ROBERTO MATTA 163",
+    "views": 0,
+    "clicks": 0,
+    "coupons": [
+      {
+        "title": "20% MENSUAL",
+        "discount": "20%",
+        "code": "LILLO2026",
+        "stock": 6,
+        "id": "1781469077805",
+        "createdAt": "2026-06-14T20:31:17.805Z"
+      }
+    ],
+    "createdAt": "2026-06-14T20:31:17.805Z",
+    "updatedAt": "2026-06-14T20:31:17.805Z"
+  },
+  {
+    "id": "1781469709509",
+    "name": "Pizza Express Test",
+    "category": "Gastronomía",
+    "description": "Pizzería artesanal con ingredientes frescos",
+    "image": "/uploads/default-business.jpg",
+    "contact": "info@pizzaexpress.cl",
+    "phone": "+56987654321",
+    "address": "Calle Central 999, Puerto Montt",
+    "views": 0,
+    "clicks": 0,
+    "coupons": [],
+    "createdAt": "2026-06-14T20:41:49.509Z",
+    "updatedAt": "2026-06-14T20:41:49.509Z"
+  },
+  {
+    "id": "1781469716710",
+    "name": "Pizza Express Test",
+    "category": "Gastronomía",
+    "description": "Pizzería artesanal con ingredientes frescos",
+    "image": "/uploads/default-business.jpg",
+    "contact": "info@pizzaexpress.cl",
+    "phone": "+56987654321",
+    "address": "Calle Central 999, Puerto Montt",
+    "views": 0,
+    "clicks": 0,
+    "coupons": [],
+    "createdAt": "2026-06-14T20:41:56.712Z",
+    "updatedAt": "2026-06-14T20:41:56.712Z"
+  }
+]

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -78,7 +78,7 @@ import { ButtonModule } from 'primeng/button';
 
                   <!-- Ubicación -->
                   <p class="text-xs text-stone-500 mb-2">
-                    <i class="pi pi-map-marker text-emerald-600"></i> {{ business.location.city }}, {{ business.location.region }}
+                    <i class="pi pi-map-marker text-emerald-600"></i> {{ business.address || 'Ubicación no especificada' }}
                   </p>
                 </div>
 
@@ -118,7 +118,7 @@ import { ButtonModule } from 'primeng/button';
   `,
   styleUrl: './business-directory.component.css'
 })
-export class BusinessDirectoryComponent {
+export class BusinessDirectoryComponent implements OnInit {
   private businessService = inject(BusinessService);
   private messageService = inject(MessageService);
 
@@ -127,6 +127,11 @@ export class BusinessDirectoryComponent {
   categories = ['Todos', 'Gastronomía', 'Soporte Técnico', 'Moda', 'Salud', 'Educación', 'Otros'];
   selectedCategory = 'Todos';
   searchTerm = '';
+
+  ngOnInit(): void {
+    console.log('🔄 DirectoryComponent iniciando, recargando negocios...');
+    this.businessService.loadBusinesses();
+  }
 
   get filteredBusinesses() {
     let filtered = this.businesses();
@@ -142,7 +147,7 @@ export class BusinessDirectoryComponent {
       filtered = filtered.filter(b =>
         b.name.toLowerCase().includes(term) ||
         b.description.toLowerCase().includes(term) ||
-        b.location.city.toLowerCase().includes(term)
+        (b.address && b.address.toLowerCase().includes(term))
       );
     }
 

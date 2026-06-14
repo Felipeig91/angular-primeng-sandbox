@@ -23,7 +23,7 @@ const router = Router();
  * Agrega un nuevo cupón a un negocio
  */
 router.post('/:businessId', asyncHandler(async (req: Request, res: Response) => {
-  const { businessId } = req.params;
+  const businessId = req.params.businessId as string;
   const { title, discount, code, stock } = req.body;
 
   if (!title || !discount || !code || stock === undefined) {
@@ -55,7 +55,8 @@ router.post('/:businessId', asyncHandler(async (req: Request, res: Response) => 
  * Actualiza un cupón existente
  */
 router.put('/:businessId/:couponId', asyncHandler(async (req: Request, res: Response) => {
-  const { businessId, couponId } = req.params;
+  const businessId = req.params.businessId as string;
+  const couponId = req.params.couponId as string;
 
   const coupon = await updateCoupon(businessId, couponId, req.body);
 
@@ -79,7 +80,8 @@ router.put('/:businessId/:couponId', asyncHandler(async (req: Request, res: Resp
  * Elimina un cupón
  */
 router.delete('/:businessId/:couponId', asyncHandler(async (req: Request, res: Response) => {
-  const { businessId, couponId } = req.params;
+  const businessId = req.params.businessId as string;
+  const couponId = req.params.couponId as string;
 
   const deleted = await deleteCoupon(businessId, couponId);
 
@@ -102,7 +104,8 @@ router.delete('/:businessId/:couponId', asyncHandler(async (req: Request, res: R
  * Reclama un cupón (reduce el stock)
  */
 router.post('/:businessId/:couponId/claim', asyncHandler(async (req: Request, res: Response) => {
-  const { businessId, couponId } = req.params;
+  const businessId = req.params.businessId as string;
+  const couponId = req.params.couponId as string;
 
   const business = await getBusinessById(businessId);
   if (!business) {

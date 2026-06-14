@@ -1,4 +1,4 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { Business, BusinessFormData } from '../models/business.model';
@@ -6,136 +6,99 @@ import { Business, BusinessFormData } from '../models/business.model';
 /**
  * SERVICIO DE GESTIÓN DE NEGOCIOS
  * Maneja: CRUD de negocios, cupones, estadísticas
- *
- * PREPARACIÓN BACKEND:
- * - Descomentar HttpClient
- * - Configurar API_URL según entorno
- * - Implementar interceptores de autenticación
  */
 
 @Injectable({
   providedIn: 'root'
 })
 export class BusinessService {
+  private http = inject(HttpClient);
+  private API_URL = 'http://localhost:3001/api';
 
-  // PREPARACIÓN PARA BACKEND (comentada, lista para conexión)
-  // private API_URL = environment.apiUrl || 'http://localhost:3000/api';
-  // constructor(private http: HttpClient) {}
-
-  // POR AHORA: Estado local con Signals
-  private businessesState = signal<Business[]>([
-    {
-      id: '1',
-      name: 'Alpha Tech Support',
-      category: 'Soporte Técnico',
-      description: 'Mantenimiento de computadores, servidores y consultoría informática local.',
-      image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=400',
-      responsible: { fullName: 'Carlos Fuentes', phone: '+56912345678', email: 'carlos@alphatech.cl' },
-      location: { address: 'Calle Principal 123', city: 'Puerto Montt', region: 'Los Lagos' },
-      schedule: { openTime: '09:00', closeTime: '18:00', daysOpen: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes'] },
-      views: 142,
-      clicks: 38,
-      coupons: [
-        { id: 'c1', title: '20% en tu primer mantenimiento', discount: '20%', code: 'ALPHA20', stock: 15 }
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '2',
-      name: 'Café Central',
-      category: 'Gastronomía',
-      description: 'Café de especialidad, pastelería artesanal y el mejor ambiente de la ciudad.',
-      image: 'https://images.unsplash.com/photo-1495474472920-4c0145ca85fe?w=400',
-      responsible: { fullName: 'María González', phone: '+56923456789', email: 'maria@cafecentral.cl' },
-      location: { address: 'Avenida Costanera 456', city: 'Puerto Montt', region: 'Los Lagos' },
-      schedule: { openTime: '08:00', closeTime: '20:00', daysOpen: ['lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo'] },
-      views: 310,
-      clicks: 89,
-      coupons: [
-        { id: 'c2', title: 'Muffin gratis por la compra de un Capuccino', discount: 'Gratis', code: 'CAFE10', stock: 5 },
-        { id: 'c3', title: '10% de descuento en desayunos', discount: '10%', code: 'DESAYUNO', stock: 20 }
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    },
-    {
-      id: '3',
-      name: 'Boutique Urbana',
-      category: 'Moda',
-      description: 'Ropa y accesorios con las últimas tendencias urbanas y sostenibles.',
-      image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
-      responsible: { fullName: 'Andrea Romero', phone: '+56934567890', email: 'andrea@boutiqueu.cl' },
-      location: { address: 'Paseo Pacific 789', city: 'Puerto Montt', region: 'Los Lagos' },
-      schedule: { openTime: '10:00', closeTime: '19:00', daysOpen: ['martes', 'miércoles', 'jueves', 'viernes', 'sábado'] },
-      views: 95,
-      clicks: 12,
-      coupons: [
-        { id: 'c4', title: '15% de descuento en toda la tienda', discount: '15%', code: 'URBANA15', stock: 8 }
-      ],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    }
-  ]);
+  private businessesState = signal<Business[]>([]);
 
   public businesses = this.businessesState.asReadonly();
 
-  constructor() {}
+  constructor() {
+    this.loadBusinesses();
+  }
+
+  /**
+   * CARGAR NEGOCIOS DEL BACKEND
+   */
+  loadBusinesses(): void {
+    this.http.get<any>(`${this.API_URL}/businesses`).subscribe({
+      next: (response) => {
+        if (response?.data && Array.isArray(response.data)) {
+          const businesses = response.data.map((b: any) => ({
+            ...b,
+            createdAt: new Date(b.createdAt),
+            updatedAt: new Date(b.updatedAt)
+          }));
+          this.businessesState.set(businesses);
+          console.log('✅ Negocios cargados:', businesses.length);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error cargando negocios:', error);
+      }
+    });
+  }
 
   /**
    * OBTENER TODOS LOS NEGOCIOS
-   * Futuro: return this.http.get<Business[]>(`${this.API_URL}/businesses`);
+  /**
+   * OBTENER TODOS LOS NEGOCIOS
    */
   getAllBusinesses(): Observable<Business[]> {
-    // Temporario: retorna signal como observable
     return of(this.businessesState());
   }
 
   /**
    * OBTENER NEGOCIO POR ID
-   * Futuro: return this.http.get<Business>(`${this.API_URL}/businesses/${id}`);
    */
   getBusinessById(id: string): Observable<Business | undefined> {
     return of(this.businessesState().find(b => b.id === id));
   }
 
   /**
-   * CREAR NUEVO NEGOCIO (Multi-paso)
-   * Futuro: return this.http.post<Business>(`${this.API_URL}/businesses`, formData);
+   * CREAR NUEVO NEGOCIO EN BACKEND
    */
-  createBusiness(formData: BusinessFormData): Observable<Business> {
-    const newBusiness: Business = {
-      id: Date.now().toString(),
-      name: formData.name,
-      category: formData.category,
-      description: formData.description,
-      image: formData.imageFile ? URL.createObjectURL(formData.imageFile) : undefined,
-      responsible: {
-        fullName: formData.fullName,
-        phone: formData.phone,
-        email: formData.email
-      },
-      location: {
-        address: formData.address,
-        city: formData.city,
-        region: formData.region
-      },
-      schedule: {
-        openTime: formData.openTime,
-        closeTime: formData.closeTime,
-        daysOpen: formData.daysOpen
-      },
-      views: 0,
-      clicks: 0,
-      coupons: [],
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
+  createBusiness(businessData: any): Observable<any> {
+    return new Observable(observer => {
+      this.http.post<any>(`${this.API_URL}/businesses`, businessData).subscribe({
+        next: (response) => {
+          console.log('✅ Negocio creado:', response);
+          this.loadBusinesses();
+          observer.next(response);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('❌ Error creando negocio:', error);
+          observer.error(error);
+        }
+      });
+    });
+  }
 
-    // Actualizar state local
-    this.businessesState.update(businesses => [...businesses, newBusiness]);
-
-    return of(newBusiness);
+  /**
+   * CREAR NUEVO NEGOCIO CON IMAGEN EN BACKEND
+   */
+  createBusinessWithImage(formData: FormData): Observable<any> {
+    return new Observable(observer => {
+      this.http.post<any>(`${this.API_URL}/businesses/upload`, formData).subscribe({
+        next: (response) => {
+          console.log('✅ Negocio con imagen creado:', response);
+          this.loadBusinesses();
+          observer.next(response);
+          observer.complete();
+        },
+        error: (error) => {
+          console.error('❌ Error creando negocio con imagen:', error);
+          observer.error(error);
+        }
+      });
+    });
   }
 
   /**
