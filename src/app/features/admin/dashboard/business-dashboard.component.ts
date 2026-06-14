@@ -38,11 +38,14 @@ interface DashboardStats {
       </div>
 
       <!-- Tabs -->
-      <p-tabs>
+      <div class="grid grid-cols-3 gap-4 mb-8">
+        <button pButton label="📈 Overview" [outlined]="selectedTab !== 'overview'" (click)="selectedTab = 'overview'" class="w-full"></button>
+        <button pButton label="🏢 Negocios" [outlined]="selectedTab !== 'businesses'" (click)="selectedTab = 'businesses'" class="w-full"></button>
+        <button pButton label="🎟️ Cupones" [outlined]="selectedTab !== 'coupons'" (click)="selectedTab = 'coupons'" class="w-full"></button>
+      </div>
 
-        <!-- TAB 1: OVERVIEW Y ESTADÍSTICAS -->
-        <p-tabPanel header="📈 Overview" leftIcon="pi pi-chart-bar">
-          <div class="space-y-8">
+      <!-- TAB 1: OVERVIEW Y ESTADÍSTICAS -->
+      <div *ngIf="selectedTab === 'overview'" class="space-y-8">
 
             <!-- Métricas KPI -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -111,11 +114,10 @@ interface DashboardStats {
             </div>
 
           </div>
-        </p-tabPanel>
+      </div>
 
-        <!-- TAB 2: GESTIÓN DE NEGOCIOS -->
-        <p-tabPanel header="🏢 Negocios" leftIcon="pi pi-building">
-          <div class="space-y-6">
+      <!-- TAB 2: GESTIÓN DE NEGOCIOS -->
+      <div *ngIf="selectedTab === 'businesses'" class="space-y-6">
 
             <!-- Botón Agregar -->
             <div class="flex justify-between items-center mb-6">
@@ -142,28 +144,28 @@ interface DashboardStats {
               >
                 <ng-template pTemplate="header">
                   <tr class="bg-slate-100">
-                    <th class="!p-4 text-left">Negocio</th>
-                    <th class="!p-4 text-left">Categoría</th>
-                    <th class="!p-4 text-center">Vistas</th>
-                    <th class="!p-4 text-center">Cupones</th>
-                    <th class="!p-4 text-center">Acciones</th>
+                    <th class="p-4! text-left">Negocio</th>
+                    <th class="p-4! text-left">Categoría</th>
+                    <th class="p-4! text-center">Vistas</th>
+                    <th class="p-4! text-center">Cupones</th>
+                    <th class="p-4! text-center">Acciones</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-business>
                   <tr class="border-b border-slate-200 hover:bg-slate-50">
-                    <td class="!p-4 font-semibold text-slate-900">{{ business.name }}</td>
-                    <td class="!p-4">
+                    <td class="p-4! font-semibold text-slate-900">{{ business.name }}</td>
+                    <td class="p-4!">
                       <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-sm font-medium">
                         {{ business.category }}
                       </span>
                     </td>
-                    <td class="!p-4 text-center text-slate-600">{{ business.views }}</td>
-                    <td class="!p-4 text-center">
+                    <td class="p-4! text-center text-slate-600">{{ business.views }}</td>
+                    <td class="p-4! text-center">
                       <span class="inline-block px-3 py-1 bg-amber-100 text-amber-700 rounded-full font-medium">
                         {{ business.coupons?.length || 0 }}
                       </span>
                     </td>
-                    <td class="!p-4 text-center space-x-2">
+                    <td class="p-4! text-center space-x-2">
                       <button
                         pButton
                         type="button"
@@ -205,11 +207,9 @@ interface DashboardStats {
             </div>
 
           </div>
-        </p-tabPanel>
 
-        <!-- TAB 3: GESTIÓN DE CUPONES -->
-        <p-tabPanel header="🎟️ Cupones" leftIcon="pi pi-tag">
-          <div class="space-y-6">
+      <!-- TAB 3: GESTIÓN DE CUPONES -->
+      <div *ngIf="selectedTab === 'coupons'" class="space-y-6">
 
             <!-- Filtro por Negocio -->
             <div class="flex gap-4 mb-6">
@@ -234,19 +234,19 @@ interface DashboardStats {
               >
                 <ng-template pTemplate="header">
                   <tr class="bg-slate-100">
-                    <th class="!p-4 text-left">Negocio</th>
-                    <th class="!p-4 text-left">Cupón</th>
-                    <th class="!p-4 text-left">Código</th>
-                    <th class="!p-4 text-center">Stock</th>
-                    <th class="!p-4 text-center">Acciones</th>
+                    <th class="p-4! text-left">Negocio</th>
+                    <th class="p-4! text-left">Cupón</th>
+                    <th class="p-4! text-left">Código</th>
+                    <th class="p-4! text-center">Stock</th>
+                    <th class="p-4! text-center">Acciones</th>
                   </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-coupon let-business="rowData">
                   <tr class="border-b border-slate-200 hover:bg-slate-50">
-                    <td class="!p-4 font-semibold text-slate-900">{{ coupon.businessName }}</td>
-                    <td class="!p-4">{{ coupon.title }}</td>
-                    <td class="!p-4 font-mono font-bold text-indigo-600">{{ coupon.code }}</td>
-                    <td class="!p-4 text-center">
+                    <td class="p-4! font-semibold text-slate-900">{{ coupon.businessName }}</td>
+                    <td class="p-4!">{{ coupon.title }}</td>
+                    <td class="p-4! font-mono font-bold text-indigo-600">{{ coupon.code }}</td>
+                    <td class="p-4! text-center">
                       <span class="inline-block px-3 py-1" [ngClass]="{
                         'bg-green-100 text-green-700': coupon.stock > 5,
                         'bg-yellow-100 text-yellow-700': coupon.stock <= 5 && coupon.stock > 0,
@@ -255,7 +255,7 @@ interface DashboardStats {
                         {{ coupon.stock }}
                       </span>
                     </td>
-                    <td class="!p-4 text-center space-x-2">
+                    <td class="p-4! text-center space-x-2">
                       <button
                         pButton
                         type="button"
@@ -287,16 +287,12 @@ interface DashboardStats {
               </p-table>
             </div>
 
-          </div>
-        </p-tabPanel>
-
-      </p-tabs>
 
     </div>
 
     <!-- Dialog para ver/editar negocio -->
     <p-dialog
-      [(visible)]="showBusinessDialogFlag"
+      [(visible)]="displayBusinessDialog"
       [header]="isEditingBusiness ? 'Editar Negocio' : 'Ver Negocio'"
       [modal]="true"
       [style]="{ width: '90%', maxWidth: '600px' }"
@@ -331,6 +327,66 @@ interface DashboardStats {
       </div>
     </p-dialog>
 
+    <!-- Dialog para editar cupón -->
+    <p-dialog
+      [(visible)]="displayCouponDialog"
+      header="Editar Cupón"
+      [modal]="true"
+      [style]="{ width: '90%', maxWidth: '500px' }"
+    >
+      <div class="space-y-4" *ngIf="selectedCoupon()">
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Título del Cupón</label>
+          <input
+            pInputText
+            [(ngModel)]="selectedCoupon().title"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Descuento/Oferta</label>
+          <input
+            pInputText
+            [(ngModel)]="selectedCoupon().discount"
+            class="w-full"
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Código</label>
+          <input
+            pInputText
+            [(ngModel)]="selectedCoupon().code"
+            class="w-full"
+            disabled
+          />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">Stock Disponible</label>
+          <p-inputNumber
+            [(ngModel)]="selectedCoupon().stock"
+            [min]="0"
+            class="w-full"
+          ></p-inputNumber>
+        </div>
+        <div class="pt-4 border-t border-slate-200 flex gap-2 justify-end">
+          <button
+            pButton
+            type="button"
+            label="Cancelar"
+            severity="secondary"
+            (click)="closeCouponDialog()"
+          ></button>
+          <button
+            pButton
+            type="button"
+            label="Guardar Cambios"
+            severity="success"
+            (click)="saveCouponChanges()"
+          ></button>
+        </div>
+      </div>
+    </p-dialog>
+
   `
 })
 export class BusinessDashboardComponent implements OnInit {
@@ -339,12 +395,16 @@ export class BusinessDashboardComponent implements OnInit {
 
   // Signals
   businesses = signal<any[]>([]);
+  selectedTab = 'overview';
   stats = signal<DashboardStats | null>(null);
   selectedBusiness = signal<any | null>(null);
-  showBusinessDialogFlag = false;
+  selectedCoupon = signal<any | null>(null);
+  displayBusinessDialog = false;
+  displayCouponDialog = false;
   isEditingBusiness = false;
   wantsCoupons = false;
   selectedBusinessForCoupons: string | null = null;
+  originalCouponData: any = null;
 
   // Chart data
   barChartData: any = {};
@@ -461,7 +521,7 @@ export class BusinessDashboardComponent implements OnInit {
    */
   filteredCoupons() {
     return this.businesses()
-      .flatMap(b => (b.coupons || []).map(c => ({ ...c, businessName: b.name, businessId: b.id })))
+      .flatMap(b => (b.coupons || []).map((c: any) => ({ ...c, businessName: b.name, businessId: b.id })))
       .filter(c => !this.selectedBusinessForCoupons || c.businessId === this.selectedBusinessForCoupons);
   }
 
@@ -471,7 +531,7 @@ export class BusinessDashboardComponent implements OnInit {
   showBusinessDialog() {
     this.isEditingBusiness = false;
     this.selectedBusiness.set(null);
-    this.showBusinessDialogFlag = true;
+    this.displayBusinessDialog = true;
   }
 
   /**
@@ -480,7 +540,7 @@ export class BusinessDashboardComponent implements OnInit {
   viewBusiness(business: any) {
     this.selectedBusiness.set(business);
     this.isEditingBusiness = false;
-    this.showBusinessDialogFlag = true;
+    this.displayBusinessDialog = true;
   }
 
   /**
@@ -489,7 +549,7 @@ export class BusinessDashboardComponent implements OnInit {
   editBusiness(business: any) {
     this.selectedBusiness.set(business);
     this.isEditingBusiness = true;
-    this.showBusinessDialogFlag = true;
+    this.displayBusinessDialog = true;
   }
 
   /**
@@ -522,14 +582,95 @@ export class BusinessDashboardComponent implements OnInit {
   }
 
   /**
-   * Editar cupón
+   * Guarda cambios del negocio
+   */
+  saveBusiness() {
+    const business = this.selectedBusiness();
+    if (!business) return;
+
+    this.apiService.updateBusiness(business.id, business).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Negocio actualizado correctamente',
+            life: 3000
+          });
+          this.displayBusinessDialog = false;
+          this.loadData();
+        }
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo actualizar el negocio',
+          life: 3000
+        });
+      }
+    });
+  }
+
+  /**
+   * Guarda cambios del cupón (alias para saveCouponChanges)
+   */
+  saveCoupon() {
+    this.saveCouponChanges();
+  }
+
+  /**
+   * Editar cupón - Abre diálogo
    */
   editCoupon(coupon: any) {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Función Próxima',
-      detail: 'Editar cupones - Próximamente disponible',
-      life: 3000
+    this.originalCouponData = { ...coupon };
+    this.selectedCoupon.set({ ...coupon });
+    this.displayCouponDialog = true;
+  }
+
+  /**
+   * Cierra diálogo de cupón
+   */
+  closeCouponDialog() {
+    this.displayCouponDialog = false;
+    this.selectedCoupon.set(null);
+    this.originalCouponData = null;
+  }
+
+  /**
+   * Guarda cambios del cupón
+   */
+  saveCouponChanges() {
+    const coupon = this.selectedCoupon();
+    if (!coupon) return;
+
+    const updateData = {
+      title: coupon.title,
+      discount: coupon.discount,
+      stock: coupon.stock
+    };
+
+    this.apiService.updateCoupon(coupon.businessId, coupon.id, updateData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Cupón actualizado correctamente',
+            life: 3000
+          });
+          this.closeCouponDialog();
+          this.loadData();
+        }
+      },
+      error: (error) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudo actualizar el cupón',
+          life: 3000
+        });
+      }
     });
   }
 

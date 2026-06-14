@@ -4,6 +4,7 @@ export interface Coupon {
   discount: string;
   code: string;
   stock: number;
+  createdAt?: string;
 }
 
 export interface Business {

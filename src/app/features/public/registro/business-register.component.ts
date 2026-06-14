@@ -44,13 +44,32 @@ interface CouponForm {
             <p class="text-indigo-100 mt-2 text-lg">Completa los pasos para unirte a la comunidad local</p>
           </div>
 
-          <!-- Stepper -->
-          <div class="p-8">
-            <p-stepper [activeIndex]="currentStep()" (activeIndexChange)="onStepChange($event)" [linear]="true">
+          <!-- Progreso Visual -->
+          <div class="mb-8">
+            <div class="flex justify-between mb-4">
+              <div [class]="'step ' + (currentStep() >= 0 ? 'active' : '')">
+                <div class="step-number">1</div>
+                <div class="step-label">Básica</div>
+              </div>
+              <div [class]="'step ' + (currentStep() >= 1 ? 'active' : '')">
+                <div class="step-number">2</div>
+                <div class="step-label">Contacto</div>
+              </div>
+              <div [class]="'step ' + (currentStep() >= 2 ? 'active' : '')">
+                <div class="step-number">3</div>
+                <div class="step-label">Cupones</div>
+              </div>
+            </div>
+            <div class="h-1 bg-slate-200 rounded-full">
+              <div class="h-full bg-indigo-600 rounded-full transition-all" [style.width]="(currentStep() + 1) * 33.33 + '%'"></div>
+            </div>
+          </div>
 
-              <!-- PASO 1: Información Básica -->
-              <p-stepperPanel header="Información Básica" headerIcon="pi pi-building" [stepperOptions]="{ index: 0 }">
-                <form [formGroup]="basicInfoForm" class="space-y-6">
+          <!-- Contenido de Pasos -->
+          <div>
+            <!-- PASO 1: Información Básica -->
+            <div *ngIf="currentStep() === 0" class="space-y-6">
+              <form [formGroup]="basicInfoForm" class="space-y-6">
 
                   <!-- Nombre del Negocio -->
                   <div>
@@ -110,11 +129,11 @@ interface CouponForm {
                     <button pButton type="button" label="Siguiente" (click)="goToStep(1)" [disabled]="basicInfoForm.invalid" class="flex-1"></button>
                   </div>
                 </form>
-              </p-stepperPanel>
+            </div>
 
-              <!-- PASO 2: Información de Contacto -->
-              <p-stepperPanel header="Información de Contacto" headerIcon="pi pi-phone" [stepperOptions]="{ index: 1 }">
-                <form [formGroup]="contactForm" class="space-y-6">
+            <!-- PASO 2: Información de Contacto -->
+            <div *ngIf="currentStep() === 1">
+              <form [formGroup]="contactForm" class="space-y-6">
 
                   <!-- Correo de Contacto -->
                   <div>
@@ -167,13 +186,11 @@ interface CouponForm {
                     <button pButton type="button" label="Siguiente" (click)="goToStep(2)" class="flex-1"></button>
                   </div>
                 </form>
-              </p-stepperPanel>
+            </div>
 
-              <!-- PASO 3: Cupones (Opcional) -->
-              <p-stepperPanel header="Cupones (Opcional)" headerIcon="pi pi-tag" [stepperOptions]="{ index: 2 }">
-                <div class="space-y-6">
-
-                  <!-- Toggle para agregar cupones -->
+            <!-- PASO 3: Cupones (Opcional) -->
+            <div *ngIf="currentStep() === 2" class="space-y-6">
+              <div>
                   <div class="flex items-center gap-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                     <label class="block text-sm font-semibold text-slate-700 flex-1">
                       ¿Deseas agregar cupones promocionales?
@@ -278,10 +295,8 @@ interface CouponForm {
                       class="flex-1"
                     ></button>
                   </div>
-                </div>
-              </p-stepperPanel>
+            </div>
 
-            </p-stepper>
           </div>
 
         </div>
@@ -296,7 +311,47 @@ interface CouponForm {
 
       </div>
     </div>
-  `
+  `,
+  styles: [`
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      background: #e2e8f0;
+      color: #64748b;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+    }
+
+    .step.active .step-number {
+      background: #4f46e5;
+      color: white;
+      border-color: #4f46e5;
+    }
+
+    .step-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #64748b;
+      text-align: center;
+    }
+
+    .step.active .step-label {
+      color: #4f46e5;
+    }
+  `]
 })
 export class BusinessRegisterComponent {
   private apiService = inject(ApiService);

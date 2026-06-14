@@ -1,7 +1,7 @@
 /**
  * Rutas para operaciones CRUD de Negocios
  * GET /api/businesses - Obtener todos
- * POST /api/businesses - Crear nuevo
+ * POST /api/businesses - Crear nuevo (con soporte para imagen)
  * GET /api/businesses/:id - Obtener uno
  * PUT /api/businesses/:id - Actualizar
  * DELETE /api/businesses/:id - Eliminar
@@ -17,6 +17,7 @@ import {
   incrementViews
 } from '../data-storage';
 import { asyncHandler } from '../middleware/error-handler';
+import { upload } from '../middleware/upload';
 import { ApiResponse } from '../types';
 
 const router = Router();
@@ -62,19 +63,20 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * POST /api/businesses
- * Crea un nuevo negocio
- * Body:
+ * Crea un nuevo negocio con imagen opcional
+ * FormData:
  * {
+ *   image?: File,
  *   name: string,
  *   category: string,
  *   description: string,
  *   contact?: string,
  *   phone?: string,
  *   address?: string,
- *   coupons?: Coupon[]
+ *   coupons?: string (JSON array)
  * }
  */
-router.post('/', asyncHandler(async (req: Request, res: Response) => {
+router.post('/', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
   const { name, category, description, contact, phone, address, coupons } = req.body;
 
   // Validaciones básicas
@@ -85,6 +87,22 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
+  // Procesar imagen si se subió
+  let imagePath = null;
+  if (req.file) {
+    imagePath = `/uploads/${req.file.filename}`;
+  }
+
+  // Parsear cupones si vienen como string (desde FormData)
+  let parsedCoupons = coupons;
+  if (typeof coupons === 'string') {
+    try {
+      parsedCoupons = JSON.parse(coupons);
+    } catch (e) {
+      parsedCoupons = [];
+    }
+  }
+
   const business = await createBusiness({
     name,
     category,
@@ -92,7 +110,8 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
     contact,
     phone,
     address,
-    coupons
+    image: imagePath,
+    coupons: parsedCoupons
   });
 
   const response: ApiResponse<any> = {
@@ -105,9 +124,9 @@ router.post('/', asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * PUT /api/businesses/:id
- * Actualiza un negocio existente
+ * Actualiza un negocio existente (con soporte para cambiar imagen)
  */
-router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+router.put('/:id', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
   const existing = await getBusinessById(req.params.id);
 
   if (!existing) {
@@ -117,7 +136,14 @@ router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
     });
   }
 
-  const updated = await updateBusiness(req.params.id, req.body);
+  const updateData = { ...req.body };
+
+  // Si se subió una nueva imagen, usar esa ruta
+  if (req.file) {
+    updateData.image = `/uploads/${req.file.filename}`;
+  }
+
+  const updated = await updateBusiness(req.params.id, updateData);
 
   const response: ApiResponse<any> = {
     success: true,

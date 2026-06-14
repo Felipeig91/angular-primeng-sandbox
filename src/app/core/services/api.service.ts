@@ -2,17 +2,17 @@
  * Servicio HTTP para comunicarse con la API local
  * Gestiona todas las peticiones HTTP hacia el backend Express
  *
+ * Features:
+ * - CRUD completo para negocios y cupones
+ * - Upload de imágenes con Multer
+ * - Gestión de errores centralizada
+ * - Tipado fuerte con TypeScript
+ *
  * Endpoints:
- * - GET /api/businesses
- * - POST /api/businesses
- * - GET /api/businesses/:id
- * - PUT /api/businesses/:id
- * - DELETE /api/businesses/:id
- * - POST /api/coupons/:businessId
- * - PUT /api/coupons/:businessId/:couponId
- * - DELETE /api/coupons/:businessId/:couponId
- * - POST /api/coupons/:businessId/:couponId/claim
- * - GET /api/stats
+ * - GET/POST/PUT/DELETE /api/businesses (con soporte para imágenes)
+ * - POST/PUT/DELETE /api/coupons/:businessId
+ * - POST /api/coupons/:businessId/:couponId/claim (reclamar cupones)
+ * - GET /api/stats (estadísticas)
  */
 
 import { Injectable, inject } from '@angular/core';
@@ -135,6 +135,32 @@ export class ApiService {
    */
   getStats(): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.apiUrl}/stats`)
+      .pipe(catchError(error => this.handleError(error)));
+  }
+
+  // =================== UPLOAD DE IMÁGENES ===================
+
+  /**
+   * Crea un negocio con imagen usando FormData
+   * Útil para uploads de archivos
+   *
+   * @param formData FormData con campos de negocio e imagen
+   * @returns Observable con la respuesta del servidor
+   */
+  createBusinessWithImage(formData: FormData): Observable<ApiResponse<any>> {
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/businesses`, formData)
+      .pipe(catchError(error => this.handleError(error)));
+  }
+
+  /**
+   * Actualiza un negocio con posible cambio de imagen
+   *
+   * @param id ID del negocio
+   * @param formData FormData con campos actualizados
+   * @returns Observable con la respuesta del servidor
+   */
+  updateBusinessWithImage(id: string, formData: FormData): Observable<ApiResponse<any>> {
+    return this.http.put<ApiResponse<any>>(`${this.apiUrl}/businesses/${id}`, formData)
       .pipe(catchError(error => this.handleError(error)));
   }
 }
