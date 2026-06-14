@@ -63,20 +63,43 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
 
 /**
  * POST /api/businesses
- * Crea un nuevo negocio con imagen opcional
- * FormData:
- * {
- *   image?: File,
- *   name: string,
- *   category: string,
- *   description: string,
- *   contact?: string,
- *   phone?: string,
- *   address?: string,
- *   coupons?: string (JSON array)
- * }
+ * Crea un nuevo negocio SIN imagen (JSON directo)
  */
-router.post('/', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
+router.post('/', asyncHandler(async (req: Request, res: Response) => {
+  const { name, category, description, contact, phone, address, coupons } = req.body;
+
+  // Validaciones básicas
+  if (!name || !category || !description) {
+    return res.status(400).json({
+      success: false,
+      message: 'Faltan campos requeridos: name, category, description'
+    });
+  }
+
+  const business = await createBusiness({
+    name,
+    category,
+    description,
+    contact,
+    phone,
+    address,
+    image: null,
+    coupons: Array.isArray(coupons) ? coupons : []
+  });
+
+  const response: ApiResponse<any> = {
+    success: true,
+    message: 'Negocio creado exitosamente',
+    data: business
+  };
+  res.status(201).json(response);
+}));
+
+/**
+ * POST /api/businesses/upload
+ * Crea un nuevo negocio CON imagen (FormData + Multer)
+ */
+router.post('/upload', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
   const { name, category, description, contact, phone, address, coupons } = req.body;
 
   // Validaciones básicas
@@ -124,9 +147,33 @@ router.post('/', upload.single('image'), asyncHandler(async (req: Request, res: 
 
 /**
  * PUT /api/businesses/:id
- * Actualiza un negocio existente (con soporte para cambiar imagen)
+ * Actualiza un negocio existente (JSON sin imagen)
  */
-router.put('/:id', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
+router.put('/:id', asyncHandler(async (req: Request, res: Response) => {
+  const existing = await getBusinessById(req.params.id);
+
+  if (!existing) {
+    return res.status(404).json({
+      success: false,
+      message: 'Negocio no encontrado'
+    });
+  }
+
+  const updated = await updateBusiness(req.params.id, req.body);
+
+  const response: ApiResponse<any> = {
+    success: true,
+    message: 'Negocio actualizado exitosamente',
+    data: updated
+  };
+  res.json(response);
+}));
+
+/**
+ * PUT /api/businesses/:id/upload
+ * Actualiza un negocio con nueva imagen (FormData)
+ */
+router.put('/:id/upload', upload.single('image'), asyncHandler(async (req: Request, res: Response) => {
   const existing = await getBusinessById(req.params.id);
 
   if (!existing) {
@@ -138,7 +185,7 @@ router.put('/:id', upload.single('image'), asyncHandler(async (req: Request, res
 
   const updateData = { ...req.body };
 
-  // Si se subió una nueva imagen, usar esa ruta
+  // Si se subió una nueva imagen
   if (req.file) {
     updateData.image = `/uploads/${req.file.filename}`;
   }

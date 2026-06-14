@@ -123,6 +123,36 @@ interface CouponForm {
                     </small>
                   </div>
 
+                  <!-- Imagen del Negocio -->
+                  <div>
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">
+                      Imagen del Negocio (Opcional)
+                    </label>
+                    <div class="flex items-center gap-4">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        (change)="onFileSelected($event)"
+                        #fileInput
+                        class="hidden"
+                      />
+                      <button
+                        pButton
+                        type="button"
+                        label="Seleccionar Imagen"
+                        icon="pi pi-upload"
+                        (click)="fileInput.click()"
+                        severity="secondary"
+                      ></button>
+                      <span class="text-sm text-slate-600" *ngIf="selectedFile()">
+                        ✅ {{ selectedFile()?.name }}
+                      </span>
+                      <span class="text-sm text-slate-400" *ngIf="!selectedFile()">
+                        JPG, PNG, GIF o WebP (máx 5MB)
+                      </span>
+                    </div>
+                  </div>
+
                   <!-- Botones -->
                   <div class="flex gap-4 pt-4 border-t border-slate-200">
                     <button pButton type="button" label="Cancelar" severity="secondary" (click)="onCancel()" class="flex-1"></button>
@@ -362,6 +392,7 @@ export class BusinessRegisterComponent {
   // Signals
   currentStep = signal(0);
   isSubmitting = signal(false);
+  selectedFile = signal<File | null>(null);
   wantsCoupons = false;
   addedCoupons = signal<CouponForm[]>([]);
 
@@ -399,38 +430,6 @@ export class BusinessRegisterComponent {
     });
   }
 
-  isFieldInvalid(form: FormGroup, fieldName: string): boolean {
-    const field = form.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
-  }
-
-  goToStep(step: number) {
-    this.currentStep.set(step);
-  }
-
-  onStepChange(event: any) {
-    this.currentStep.set(event);
-  }
-
-  addCoupon() {
-    if (this.couponForm.valid) {
-      const newCoupon = this.couponForm.value as CouponForm;
-      this.addedCoupons.update(coupons => [...coupons, newCoupon]);
-      this.couponForm.reset({ stock: 1 });
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Cupón Agregado',
-        detail: `"${newCoupon.title}" se agregó exitosamente`,
-        life: 3000
-      });
-    }
-  }
-
-  removeCoupon(index: number) {
-    this.addedCoupons.update(coupons => coupons.filter((_, i) => i !== index));
-  }
-
   async onSubmit() {
     if (this.basicInfoForm.invalid || this.contactForm.invalid) {
       this.messageService.add({
@@ -451,7 +450,25 @@ export class BusinessRegisterComponent {
         coupons: this.addedCoupons()
       };
 
-      const response = await this.apiService.createBusiness(businessData).toPromise();
+      let response;
+
+      // Si hay imagen, usar FormData
+      if (this.selectedFile()) {
+        const formData = new FormData();
+        formData.append('image', this.selectedFile()!);
+        formData.append('name', businessData.name);
+        formData.append('category', businessData.category);
+        formData.append('description', businessData.description);
+        formData.append('contact', businessData.contact || '');
+        formData.append('phone', businessData.phone || '');
+        formData.append('address', businessData.address || '');
+        formData.append('coupons', JSON.stringify(businessData.coupons));
+
+        response = await this.apiService.createBusinessWithImage(formData).toPromise();
+      } else {
+        // Sin imagen, usar JSON directo
+        response = await this.apiService.createBusiness(businessData).toPromise();
+      }
 
       if (response?.success) {
         this.messageService.add({
@@ -476,9 +493,79 @@ export class BusinessRegisterComponent {
     }
   }
 
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (file) {
+      // Validar tamaño (máx 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Archivo muy grande',
+          detail: 'La imagen no puede exceder 5MB',
+          life: 3000
+        });
+        return;
+      }
+
+      // Validar tipo
+      const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!validTypes.includes(file.type)) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Tipo de archivo inválido',
+          detail: 'Solo se aceptan JPG, PNG, GIF o WebP',
+          life: 3000
+        });
+        return;
+      }
+
+      this.selectedFile.set(file);
+    }
+  }
+
   onCancel() {
     if (confirm('¿Deseas cancelar el registro? Se perderán los datos ingresados.')) {
       this.router.navigate(['/directorio']);
     }
+  }
+
+  /**
+   * Métodos de navegación entre pasos
+   */
+  goToStep(step: number) {
+    this.currentStep.set(step);
+  }
+
+  /**
+   * Valida si un campo es inválido
+   */
+  isFieldInvalid(form: FormGroup, fieldName: string): boolean {
+    const field = form.get(fieldName);
+    return !!(field && field.invalid && (field.dirty || field.touched));
+  }
+
+  /**
+   * Agrega un cupón a la lista
+   */
+  addCoupon() {
+    if (this.couponForm.invalid) return;
+
+    const coupon: CouponForm = {
+      ...this.couponForm.value,
+      stock: Number(this.couponForm.value.stock)
+    };
+
+    this.addedCoupons.set([...this.addedCoupons(), coupon]);
+    this.couponForm.reset({ stock: 1 });
+  }
+
+  /**
+   * Remueve un cupón de la lista
+   */
+  removeCoupon(index: number) {
+    const updated = this.addedCoupons().filter((_, i) => i !== index);
+    this.addedCoupons.set(updated);
   }
 }

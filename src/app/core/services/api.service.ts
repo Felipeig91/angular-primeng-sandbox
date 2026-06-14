@@ -148,7 +148,7 @@ export class ApiService {
    * @returns Observable con la respuesta del servidor
    */
   createBusinessWithImage(formData: FormData): Observable<ApiResponse<any>> {
-    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/businesses`, formData)
+    return this.http.post<ApiResponse<any>>(`${this.apiUrl}/businesses/upload`, formData)
       .pipe(catchError(error => this.handleError(error)));
   }
 
